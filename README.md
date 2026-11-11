@@ -1,0 +1,132 @@
+MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton
+
+# Estudo B2B · versão 4.2
+
+## Usar no Windows
+
+1. Abra `docs/index.html` no Chrome ou Edge, ou acesse o link do GitHub Pages quando habilitado.
+2. Em **Gestor**, escolha produto, confira CPV/frete, ajuste o preço e veja as três margens.
+3. Em **Fiscal**, confira horizonte, contexto e fontes. Os exemplos não têm NCM, UF nem regime validados.
+4. Em **Descontos**, defina as faixas de cada produto e a margem mínima global sobre a operação.
+5. Em **Pedido**, informe produto, tabela, quantidade, preço e desconto, inclua os itens e confira margem e cartões de totais. O modo é somente Gestor.
+6. Em **Estudo ERP**, gere um pacote comercial ou um backup interno. O comercial exclui custos para uso externo; somente o interno reabre o estudo e restaura também o pedido.
+
+A mesma aplicação contém as abas de precificação e pedido, sempre no modo Gestor.
+
+O HTML incorpora React, htm, Decimal.js, fontes IBM Plex e a tabela NCM. Os cálculos e a interface funcionam sem CDN ou conexão. Links legais e WhatsApp precisam de internet. Não há servidor, implantação remota ou envio automático de pedidos.
+
+## Preservar o trabalho
+
+Alterações são salvas no armazenamento local do navegador. Limpeza do navegador, navegação privada, troca de computador ou restrições de arquivos locais podem impedir persistência. Guarde backups internos em JSON. Nenhum dado é enviado a um servidor por este simulador.
+
+O resumo copiado, o link para WhatsApp e a impressão usam apenas dados comerciais. WhatsApp abre uma tela para o operador escolher o destinatário e enviar. A aplicação não emite nota nem boleto bancário.
+
+## Novidades da versão 4.2
+
+Modo único Gestor, ações por ícones, lista de UFs e catálogo NCM oficial incorporado sem importação. Novo pedido com cabeçalho, inclusão de itens, grade e oito cartões de total. Clique nos valores para ver fórmulas e composição. IPI e ICMS-ST são valores apurados externamente e informados à parte; não há cálculo automático de suas bases. Veja `documentacao/ALTERACOES_V4_2.md`.
+
+## Tela de entrada e precificação por tabela
+
+A tela principal agora tem cabeçalho, grade de produtos da entrada e grade de preços por tabela do produto selecionado. Veja `documentacao/ALTERACOES_V4_1.md` para os campos, fórmulas e premissas. Preço consumidor permanece manual; sugerido e preço da reforma são calculados. Operacional e comissão são percentuais sobre o preço efetivamente praticado.
+
+## O que mudou
+
+- Produto unificado com entrada separada para precificação e venda.
+- Uma só definição de margem mínima, sobre a receita sem os tributos modelados.
+- Modelo original preservado como comparação; modelo de bases encadeadas configurável.
+- Tratamento CBS/IBS e faixas por produto; IS separado do tratamento e do split.
+- Créditos de compras separados da taxa de saída; sem promessa automática de crédito PJ.
+- Parâmetros com fonte, vigência, data, situação e marcação de alteração; histórico local de edições fiscais.
+- JSON, código Base64, backup, importação com validação e confirmação, suporte a códigos legados v2.
+- Novo pedido, confirmação de remoção, resumo, impressão, tema e preview de celular.
+- Fórmulas aplicadas, glossário comum às ajudas e material para o ERP.
+
+O código legado Base64 v2 transportava custos: sua importação é considerada interna, identificada como histórica e sujeita a revisão. Não publica alíquotas como oficiais. A importação legada não recupera dados que não existiam no código, como NCM, autoria original do pacote, créditos e margens mínimas específicas.
+
+## Premissas declaradas
+
+- Cenário inicial: horizonte 2027, ICMS hipotético de 18%, CBS hipotética de 11,2%, IBS de referência 0,1%, IS não incidente para o exemplo.
+- O modelo encadeado inicial considera CBS/IBS na base do ICMS, como cenário de estudo apoiado na orientação SEFA/PR; isso exige validação na UF da operação.
+- Os produtos começam como padrão **não validado**. Não foi presumida cesta básica a partir do nome comercial.
+- O CPV deve conter somente custo líquido de créditos recuperáveis considerados. Frete já incluído no CPV não deve ser repetido.
+- O desconto do precificador reduz a receita alvo **depois da formação da meta**; seu equivalente no total é mostrado. O desconto do pedido reduz o valor final em reais e é rateado por item.
+- O desconto por quantidade é considerado definido na venda e documentável, sem evento futuro. Desconto condicional não é tratado como redução fiscal de base.
+- O resultado é gerencial após os custos/tributos calculados; não é lucro líquido contábil.
+- A data do pedido é comercial. O horizonte fiscal é escolhido explicitamente; conferir a compatibilidade entre data de operação e vigência no ERP.
+
+## Limites fiscais e de segurança
+
+Não automatizados: DAS, ICMS-ST, FCP, DIFAL, benefícios e reduções específicas de base, PIS/Cofins, IPI, devoluções, estornos por perecimento, enquadramento NCM, apuração oficial, emissão fiscal e integração bancária. Os horizontes são comparações, não reprodução completa da carga tributária. Em 2026, não confundir destaque de teste com desembolso automático.
+
+No modelo de IS há apenas estudo ad valorem das bases gerais. Monofasia, momento de incidência, alíquotas específicas por unidade e tratamentos especiais não foram implementados. O modelo original aceita IS não incidente; use bases encadeadas para o estudo hipotético de IS.
+
+O split começa desligado. Os cenários padrão e simplificado são hipóteses de caixa, dependentes da implantação e dos atos aplicáveis. Créditos disponíveis não são considerados automaticamente débitos extintos de uma operação. O comparativo de retenção menos crédito não prevê sozinho capital de giro ou ressarcimento.
+
+Modo único Gestor: HTML e armazenamento contêm informações internas. Para uso no ERP, autenticação e autorização devem existir no servidor. Base64 não é criptografia; o piso comercial também é informação da política de preços.
+
+## Publicação para a equipe
+
+O site está preparado em `docs/index.html`, com dados fictícios e sem servidor.
+
+No GitHub, abrir **Settings → Pages → Build and deployment** e escolher:
+
+- Source: **Deploy from a branch**.
+- Branch: **main**.
+- Folder: **/docs**.
+
+Após salvar e concluir a publicação, o endereço padrão será:
+
+https://marcelotcp.github.io/simuladorReforma/
+
+O endereço acima só fica disponível quando o Pages estiver habilitado e a publicação concluir. O repositório é público; não versionar dados reais de clientes, custos internos, senhas ou backups de uso. Os dados digitados no simulador são locais ao navegador, sem sincronização entre usuários.
+
+Para atualizar o site: alterar os fontes, executar os testes, executar `python gerar.py` e incluir o `docs/index.html` regenerado no commit. A autoria deve ser preservada no topo, no rodapé e no JSON.
+
+Para relatar um problema, abrir uma Issue com versão, aba, valores utilizados, comportamento esperado e observado. Usar dados fictícios nas capturas e anexos.
+
+## Estrutura de desenvolvimento
+
+| Arquivo | Função |
+|---|---|
+| `src/motor.js` | Funções puras, validação, formação/decomposição de preço, pedido e caixa |
+| `src/dados.js` | Exemplos, parâmetros, glossário, autoria e rastreabilidade |
+| `src/aplicacao.js` | Interface React com htm |
+| `src/estilo.css` e `src/grade.css` | Aparência, temas, responsividade e impressão |
+| `gerar.py` | Incorpora fontes/bibliotecas e gera os três HTMLs |
+| `testes/motor.test.cjs` | Testes de resultados e invariantes de cálculo |
+| `testes/interface.test.cjs` | Renderização React e eventos, sem navegador |
+| `documentacao/` | Contratos, entidades, arredondamento, validação e testes esperados |
+| `originais/` | Os anexos recebidos, preservados para comparação |
+
+Não é necessário npm para usar ou executar os testes. Para regenerar: Python 3. Para testar: Node.js moderno (recomendado 18 ou superior). As dependências estão incorporadas, com versões registradas em `LICENCAS.md`.
+
+```bash
+node testes/motor.test.cjs
+node testes/grade.test.cjs
+node testes/pedido.test.cjs
+node testes/interface.test.cjs
+python gerar.py
+```
+
+O gerador grava o site em `docs/index.html`. Os fontes mantêm nomes de domínio em português.
+
+## Validação realizada
+
+16 testes básicos do motor, 12 de entrada/grade, 12 de pedido/cadastros e 16 de renderização/interação React: 56 verificações. Resultados em JSON na pasta de testes.
+
+Conferência visual em navegador não concluída: a execução local e o acesso ao arquivo foram bloqueados pelo ambiente. Os testes React não certificam aparência, teclado virtual, impressão real ou WCAG 2.2 AA. Esses itens devem ser conferidos no Chrome/Edge do usuário, incluindo celular real e leitor de tela.
+
+## Próximas validações com o responsável tributário
+
+1. UF de origem/destino, natureza da operação, regime e opção IBS/CBS do Simples.
+2. NCM existente na base oficial incorporada, descrição técnica, composição e estágio de preparo de cada produto. Existência do código não confirma enquadramento.
+3. Alíquotas efetivamente fixadas por ato vigente; benefícios, ST, FCP e DIFAL.
+4. Composição das bases e efeitos cruzados por UF/período, inclusive IPI e IS quando aplicáveis.
+5. Créditos elegíveis, documento, extinção, apropriação, estornos e disponibilidade.
+6. Desconto definido na nota versus desconto dependente de evento futuro.
+7. Procedimento e cronograma do split, cobertura do boleto, conciliação e ressarcimento.
+8. Política do documento fiscal para precisão, arredondamento e totalização.
+
+**A implementação precisa ser validada por contador ou advogado tributarista antes de orientar produção fiscal.**
+
+MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton
