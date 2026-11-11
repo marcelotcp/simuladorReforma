@@ -1,6 +1,6 @@
 /* MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton */
 function migrarGrade(s){
- s.modo='gestor';s.pedido.outrasDespesas??=0;s.pedido.ipiInformado??=0;s.pedido.icmsStInformado??=0;
+ s.modo='gestor';s.regra.modoPrecificacao??='atual';s.pedido.outrasDespesas??=0;s.pedido.ipiInformado??=0;s.pedido.icmsStInformado??=0;
  if(s.tipo==='comercial')return s;
  for(const p of s.produtos){
   if(!p.entrada){
