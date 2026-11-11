@@ -48,6 +48,14 @@
     {
       "id": "P12: 27 UFs, pacote com cadastro inválido rejeitado",
       "situacao": "OK"
+    },
+    {
+      "id": "P13: faixa automática acompanha quantidade mesmo com preço bruto informado",
+      "situacao": "OK"
+    },
+    {
+      "id": "P14: automático respeita teto e manual preserva escolha sem acumular faixa",
+      "situacao": "OK"
     }
   ]
 }

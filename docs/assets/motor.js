@@ -107,10 +107,15 @@
    const par=parametros[ano];exigir(par,'Horizonte fiscal não encontrado.');
    const r=calcularProduto(p,regra,par),fxBase=faixa(p,l.quantidade,regra),tabela=p.tabelasPreco?.find(t=>t.id===p.tabelaVendaId),limiteDesconto=tabela?Math.min(regra.descMax,tabela.desconto):regra.descMax,fx={...fxBase,pctOriginal:fxBase.pct,pct:Math.min(fxBase.pct,limiteDesconto)},auto=dinheiro(dec(r.preco).mul(dec(1).minus(pct(fx.pct))));
    exigir(l.descontoPct==null||(valido(l.descontoPct)&&l.descontoPct>=0&&l.descontoPct<100),'Desconto do item deve ficar entre 0% e menos de 100%.');
+   exigir(l.descontoModo==null||['automatico','manual'].includes(l.descontoModo),'Modo de desconto do item inválido.');
    const precoDigitado=l.preco??r.preco;exigir(valido(precoDigitado)&&precoDigitado>=0,'Preço do item inválido.');
-   const praticado=l.descontoPct==null?(l.preco==null?auto:l.preco):dinheiro(dec(precoDigitado).mul(dec(1).minus(pct(l.descontoPct))));
+   // Modo explícito mantém a faixa dinâmica mesmo com preço bruto editado.
+   // Compatibilidade: itens antigos com preço/desconto manual conservam seu valor.
+   const descontoAutomatico=l.descontoModo==='automatico'||(l.descontoPct==null&&l.preco==null);
+   const descontoAplicadoPct=descontoAutomatico?fx.pct:(l.descontoPct??0);
+   const praticado=descontoAutomatico?dinheiro(dec(precoDigitado).mul(dec(1).minus(pct(fx.pct)))):l.descontoPct==null?l.preco:dinheiro(dec(precoDigitado).mul(dec(1).minus(pct(l.descontoPct))));
    const brutoItem=dinheiro(dec(l.descontoPct==null&&l.preco==null?r.preco:precoDigitado).mul(l.quantidade)),subtotal=dinheiro(dec(praticado).mul(l.quantidade));
-   return {p,l,par,r,fx,limiteDesconto,auto,precoDigitado,praticado,brutoItem,descontoItem:dinheiro(dec(brutoItem).minus(subtotal)),subtotal};
+   return {p,l,par,r,fx,limiteDesconto,auto,descontoAutomatico,descontoAplicadoPct,precoDigitado,praticado,brutoItem,descontoItem:dinheiro(dec(brutoItem).minus(subtotal)),subtotal};
   });
   const rateios=ratear(pedido.desconto,iniciais.map(x=>x.subtotal));
   const rateiosOutras=ratear(pedido.outrasDespesas||0,iniciais.map(x=>x.subtotal),false);

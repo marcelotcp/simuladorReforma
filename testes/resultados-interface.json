@@ -27,6 +27,10 @@
       "situacao": "OK"
     },
     {
+      "id": "UI17: editar quantidade conserva faixa automática e permite voltar do manual",
+      "situacao": "OK"
+    },
+    {
       "id": "UI03: navega por todas as áreas sem erro de renderização",
       "situacao": "OK"
     },

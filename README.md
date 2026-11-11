@@ -138,3 +138,7 @@ A versão para Pages divide a base NCM em partes locais e usa scripts defer na o
 ### Ajuste de leitura e densidade
 
 Layout de referência: notebook 1366 × 768, com largura máxima de 1440 px. A precificação concentra oito colunas; regime, alíquotas, despesas e frete ficam nos parâmetros expansíveis de cada tabela. Cabeçalhos têm fundo contrastante nos dois temas. Nomes abreviados mantêm ajuda e fórmulas. Em telas pequenas, a grade preserva rolagem para não reduzir campos a alvos ilegíveis.
+
+### Desconto por quantidade no pedido
+
+Itens novos usam `descontoModo: "automatico"`. O motor busca a última faixa alcançada pela quantidade e limita seu percentual ao máximo global e ao máximo da tabela. A faixa é recalculada ao editar a quantidade, inclusive com preço bruto informado; desconto unitário é aplicado uma única vez e arredondado ao centavo antes da multiplicação pela quantidade. Digitar um desconto seleciona o modo manual; o botão “Usar faixa automática” restaura a regra. Itens antigos com desconto ou preço manual permanecem manuais para preservar os valores salvos. Limitação de faixa (inclusive tabela com máximo 0%) é explicada no pedido. Regressões: P13, P14 e UI17.
