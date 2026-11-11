@@ -138,7 +138,7 @@
   });
   const somar=f=>num(itens.reduce((s,x)=>s.plus(f(x)),dec(0))),totalOperacao=dinheiro(somar(x=>x.final)),total=dinheiro(dec(totalOperacao).plus(pedido.ipiInformado||0).plus(pedido.icmsStInformado||0)),receita=somar(x=>dec(x.resultado.receita).mul(x.l.quantidade)),lucro=somar(x=>dec(x.resultado.lucro).mul(x.l.quantidade));
   const custo=somar(x=>dec(x.resultado.custo).mul(x.l.quantidade)),cpv=somar(x=>dec(x.resultado.cpv??x.p.cpv).mul(x.l.quantidade)),frete=somar(x=>dec(x.resultado.frete??x.p.frete).mul(x.l.quantidade));
-  const impostos=Object.fromEntries(['icms','cbs','ibs','is','simples','operacional','comissao'].map(k=>[k,somar(x=>dec(x.resultado[k]||0).mul(x.l.quantidade))]));
+  const impostos=Object.fromEntries(['icms','cbs','ibs','is','simples','operacional','comissao'].map(k=>[k,somar(x=>dec((regra.modoPrecificacao==='sem_cbs_ibs'&&x.resultado.projecaoReforma&&['icms','cbs','ibs','is'].includes(k)?x.resultado.projecaoReforma[k]:x.resultado[k])||0).mul(x.l.quantidade))]));
   const margem=receita?num(dec(lucro).div(receita).mul(100)):0;
    const totalReforma=dinheiro(dec(somar(x=>x.totalReforma)).plus(pedido.ipiInformado||0).plus(pedido.icmsStInformado||0));
    const acrescimoReforma=dinheiro(dec(totalReforma).minus(total));
