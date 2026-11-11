@@ -134,3 +134,7 @@ MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária 
 ## Empacotamento web
 
 A versão para Pages divide a base NCM em partes locais e usa scripts defer na ordem de dependências. A base e as regras são idênticas à versão 4.2 entregue em HTML único. Manter a pasta docs/assets junto de docs/index.html ao copiar ou publicar o site.
+
+### Ajuste de leitura e densidade
+
+Layout de referência: notebook 1366 × 768, com largura máxima de 1440 px. A precificação concentra oito colunas; regime, alíquotas, despesas e frete ficam nos parâmetros expansíveis de cada tabela. Cabeçalhos têm fundo contrastante nos dois temas. Nomes abreviados mantêm ajuda e fórmulas. Em telas pequenas, a grade preserva rolagem para não reduzir campos a alvos ilegíveis.
