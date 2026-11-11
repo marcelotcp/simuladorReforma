@@ -77,6 +77,10 @@
     {
       "id": "UI19: detalhes mostram bases e alíquotas por imposto no preço e no pedido",
       "situacao": "OK"
+    },
+    {
+      "id": "UI20: concilia preço até a base com descontos e rateios no pedido",
+      "situacao": "OK"
     }
   ]
 }

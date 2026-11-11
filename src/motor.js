@@ -135,6 +135,28 @@
  // Memória estruturada a partir dos resultados já calculados. Não arredonda
  // bases nem tributos: valores unitários × quantidade, como os totais do pedido.
  // Não cria base fiscal para IPI/ST informados nem separa parcelas do DAS.
+ // Conciliação didática: explica a passagem do preço à base já calculada.
+ // LC 214 art.12: exclusões no cenário regular; o IS permanece na base CBS/IBS.
+ // Ajustes abaixo são apenas de exibição da soma de parcelas em centavos.
+ function conciliarPrecoBase(r,quantidade=1){
+  exigir(valido(quantidade)&&quantidade>0,'Quantidade inválida para conciliar a base.');
+  const simples=r.fiscalTabela?.regime==='simples',etapas=[];
+  const adicionar=(rotulo,valor,tipo)=>etapas.push({rotulo,tipo,valorUnitario:valor,valorItem:num(dec(valor).mul(quantidade))});
+  const diferenca=(alvo,inicio,deducoes,q)=>{
+   let saldo=dec(dinheiro(dec(inicio).mul(q)));
+   for(const valor of deducoes)saldo=saldo.minus(dinheiro(dec(valor).mul(q)));
+   return dinheiro(dec(dinheiro(dec(alvo).mul(q))).minus(saldo));
+  };
+  const ajustar=(rotulo,a,b)=>{if(a||b)etapas.push({rotulo,tipo:'ajuste',valorUnitario:a,valorItem:b})};
+  adicionar('Preço de venda com os tributos modelados',r.preco,'inicio');
+  if(simples){adicionar('Estimativa total do Simples (não segrega os tributos)',-r.simples,'deducao');const a=diferenca(r.receita,r.preco,[r.simples],1),b=diferenca(r.receita,r.preco,[r.simples],quantidade);ajustar('Ajuste apenas da soma exibida em centavos',a,b);adicionar('Receita após estimativa do Simples',r.receita,'resultado');return {regime:'simples',quantidade,etapas,baseCbsIbs:null,baseCbsIbsItem:null,ajusteUnitario:a,ajusteItem:b,formula:'Preço − estimativa total do Simples = receita. Bases individuais de CBS/IBS não segregadas.'};}
+  for(const [k,nome] of [['icms','ICMS'],['cbs','CBS'],['ibs','IBS']])adicionar(nome+' retirado do preço',-r[k],'deducao');
+  const ajusteUnitario=diferenca(r.baseCbsIbs,r.preco,[r.icms,r.cbs,r.ibs],1),ajusteItem=diferenca(r.baseCbsIbs,r.preco,[r.icms,r.cbs,r.ibs],quantidade);
+  ajustar('Ajuste apenas da soma exibida em centavos',ajusteUnitario,ajusteItem);
+  adicionar('Base de cálculo de CBS e IBS',r.baseCbsIbs,'resultado');
+  if(r.is){adicionar('IS retirado somente para chegar à receita sem tributos',-r.is,'deducao');ajustar('Ajuste apenas da receita exibida em centavos',diferenca(r.receita,r.baseCbsIbs,[r.is],1),diferenca(r.receita,r.baseCbsIbs,[r.is],quantidade));adicionar('Receita sem os tributos modelados',r.receita,'liquido');}
+  return {regime:'regular',quantidade,etapas,baseCbsIbs:r.baseCbsIbs,baseCbsIbsItem:num(dec(r.baseCbsIbs).mul(quantidade)),ajusteUnitario,ajusteItem,formula:'Base CBS/IBS = preço final − ICMS − CBS − IBS. IS permanece na base quando incidente.',formulaInversa:'Base CBS/IBS = (preço final − ICMS) ÷ (1 + alíquota CBS + alíquota IBS)'};
+ }
  function memoriaTributos(r,parametro,quantidade=1){
   exigir(valido(quantidade)&&quantidade>0,'Quantidade inválida para detalhar os tributos.');
   const simples=r.fiscalTabela?.regime==='simples';
@@ -296,6 +318,6 @@
   const margem=receita.gt(0)?num(lucro.div(receita).mul(100)):0,margemMin=receitaMin.gt(0)?num(lucroMin.div(receitaMin).mul(100)):0;
   return {...decomposicao,preco:consumidor,precoConsumidor:consumidor,precoReforma:num(receita),receita:num(receita),precoMinimoComercial:minimoComercial,sugerido,f:num(f),alvo:num(alvoPraticado.div(f)),antesDesconto:num(alvoPraticado.div(f)),custo:num(custo),cpv:num(cpv),frete:num(frete),pesoKg:num(peso),operacional:num(operacional),comissao:num(comissao),simples:t.regime==='simples'?num(preco.minus(receita)):0,lucro:num(lucro),mOper:margem,mVenda:preco.gt(0)?num(lucro.div(preco).mul(100)):0,markup:cpv.gt(0)?num(lucro.div(cpv).mul(100)):null,minimo:pisoTecnico,pisoTecnico,equilibrio,margemNoMinimo:margemMin,lucroNoMinimo:num(lucroMin),descontoMax:preco.gt(0)?Math.max(0,piso(um.minus(dec(pisoTecnico).div(preco)).mul(100))):0,descontoBase:0,descontoFinalEquivalente:0,status:cpv.lte(0)?'pendente':lucro.lt(0)?'prejuizo':margem+1e-9<regra.minMargem?'abaixo':'seguro',statusMinimo:cpv.lte(0)?'pendente':lucroMin.lt(0)?'prejuizo':margemMin+1e-9<regra.minMargem?'abaixo':'seguro',fiscalTabela:fiscal,tabelaId:t.id,percentuais:{desconto:t.desconto,margem:t.margem,operacional:t.operacional,comissao:t.comissao,simples:t.simples},denominador:num(denom),despesasFracao:num(despesa)};
  }
- const api={memoriaTributos,prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
+ const api={conciliarPrecoBase,memoriaTributos,prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
  root.Motor=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

@@ -72,6 +72,10 @@
     {
       "id": "G18: memória do Simples não inventa bases individuais e acompanha rateios do pedido",
       "situacao": "OK"
+    },
+    {
+      "id": "G19: ponte preço-base fecha em centavos nos modelos, com IS e no Simples",
+      "situacao": "OK"
     }
   ]
 }

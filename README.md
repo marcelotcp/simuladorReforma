@@ -170,3 +170,11 @@ Paleta de tela centralizada em `src/tema-escuro.css`, carregada após os estilos
 ### Leitura de números
 
 Valores monetários exibidos em centavos e percentuais com até duas casas. Quantidades mantêm até três casas nos campos de estoque; fatores técnicos usam até quatro casas na leitura padrão. As fórmulas visuais são aproximadas e não alimentam o cálculo. A memória de bases oferece “Ver precisão técnica (opcional)” com até doze casas; o JSON conserva os valores do motor. Não houve alteração no arredondamento comercial, fiscal ou nos rateios.
+
+### Conciliação do preço até a base CBS/IBS
+
+Os detalhes mostram `preço final − ICMS − CBS − IBS = base CBS/IBS`, com valores por unidade e para o item. O IS, quando incidente no cenário, permanece na base e só é retirado na etapa posterior para chegar à receita sem tributos. Também se mostra a inversão `(preço − ICMS) ÷ (1 + CBS% + IBS%)`, para explicar como a base é encontrada, em vez de apenas subtrair resultados prontos.
+
+No pedido, a composição comercial aparece antes: bruto do item − desconto do item − desconto geral rateado + outras despesas rateadas = valor submetido à decomposição. IPI e ST informados à parte não são incluídos artificialmente nessa base. O motor não passa a apurar esses tributos.
+
+`Motor.conciliarPrecoBase` fornece a conciliação estruturada para a tela e o JSON (`resultado.conciliacaoBase` e conciliações por item). Uma linha de ajuste pode fechar apenas a soma dos valores exibidos em centavos; não muda valores internos, tributos, receita ou bases. Rastreabilidade: cenário de bases existente → `conciliarPrecoBase` → G19/UI20. A composição fiscal segue sujeita à validação profissional.
