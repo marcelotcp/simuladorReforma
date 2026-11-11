@@ -511,13 +511,7 @@ ${!vendedor&&html`<${Botao} class="btn" onClick=${()=>{if(confirm('Restaurar tod
 <${Botao} class="btn" onClick=${()=>setPreview(!preview)}>${preview?'Tela completa':'Ver como celular'}<//>
 
 </div>
-</header>${mensagem&&html`<div class="toast noPrint" role="status">
-<div class="row between">
-<span>${mensagem}</span>
-<${Botao} class="btn small" aria-label="Fechar mensagem" onClick=${()=>setMensagem('')}>Fechar<//>
-
-</div>
-</div>`}<div class="workspace screenOnly">
+</header>${mensagem&&html`<${Notificacao} fechar=${()=>setMensagem('')}>${mensagem}<//>`}<div class="workspace screenOnly">
 <div class="layout" style=${vendedor||gradeAtiva||s.aba==='pedido'?{gridTemplateColumns:'1fr'}:{}}>${!vendedor&&!gradeAtiva&&s.aba!=='pedido'&&html`<aside class="side" aria-label="Produtos e cenário">
 <div class="panel">${selecao}<div class="products">${s.produtos.map(x=>{const q=comercial?null:tentativa(()=>M.calcularProduto(x,s.regra,param)).valor;return html`<${Botao} key=${x.id} class=${'product '+(x.id===p.id?'selected':'')} onClick=${()=>mudar(z=>z.selecionado=x.id)}>
 <b>${x.nome}</b>
