@@ -5,7 +5,9 @@ const {useState,useEffect,useMemo,useId}=React;
 const html=htm.bind(React.createElement),M=Motor;
 const brl=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const pc=n=>n==null?'Não aplicável':Number(n).toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
-const fmt=(n,d=6)=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:d});
+// Somente apresentação: dinheiro/percentuais até 2 casas; fatores até 4.
+const fmt=(n,d=2)=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:Math.min(d,4)});
+const preciso=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:12});
 const clone=x=>JSON.parse(JSON.stringify(x));
 const CHAVE='mc-sn-reforma-b2b-v4';
 function hoje(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
@@ -72,18 +74,18 @@ function App(){
   'Fator = '+(param.modelo==='original'?'1 + a/(1−a) + c + i':param.incluirNovosNoIcms?'(1 + s) × (1 + c + i) ÷ (1 − a)':'(1 + s) ÷ (1 − a) + (1 + s) × (c + i)')+' = '+fmt(r.f,10),
   'Sugerido = teto_centavo('+fmt(r.alvo)+' × '+fmt(r.f,10)+') = '+brl(r.sugerido),
   'Receita efetiva = '+brl(r.preco)+' ÷ '+fmt(r.f,10)+' = '+fmt(r.receita)+' (exibida: '+brl(r.receita)+')',
-  'IS = receita × '+pc(r.aliquotas.is)+' = '+fmt(r.receita)+' × '+fmt(r.aliquotas.is/100)+' = '+fmt(r.is),
+  'IS = receita × '+pc(r.aliquotas.is)+' = '+fmt(r.receita)+' × '+pc(r.aliquotas.is)+' = '+fmt(r.is),
   'Base CBS/IBS = receita + IS = '+fmt(r.receita)+' + '+fmt(r.is)+' = '+fmt(r.baseCbsIbs),
-  'CBS = '+fmt(r.baseCbsIbs)+' × '+fmt(r.aliquotas.cbs/100)+' = '+fmt(r.cbs),
-  'IBS = '+fmt(r.baseCbsIbs)+' × '+fmt(r.aliquotas.ibs/100)+' = '+fmt(r.ibs),
+  'CBS = '+fmt(r.baseCbsIbs)+' × '+pc(r.aliquotas.cbs)+' = '+fmt(r.cbs),
+  'IBS = '+fmt(r.baseCbsIbs)+' × '+pc(r.aliquotas.ibs)+' = '+fmt(r.ibs),
   'Base ICMS = '+(param.modelo!=='original'&&param.incluirNovosNoIcms?'preço final':'(receita + IS) ÷ (1 − a)')+' = '+fmt(r.baseIcms),
-  'ICMS = '+fmt(r.baseIcms)+' × '+fmt(r.aliquotas.icms/100)+' = '+fmt(r.icms),
+  'ICMS = '+fmt(r.baseIcms)+' × '+pc(r.aliquotas.icms)+' = '+fmt(r.icms),
   'Resultado = '+fmt(r.receita)+' − '+brl(p.cpv)+' − '+brl(p.frete)+' = '+fmt(r.lucro),
   'Margem s/ venda = '+fmt(r.lucro)+' ÷ '+brl(r.preco)+' × 100 = '+pc(r.mVenda),
   'Margem s/ operação = '+fmt(r.lucro)+' ÷ '+fmt(r.receita)+' × 100 = '+pc(r.mOper),
   'Retorno s/ CPV = '+fmt(r.lucro)+' ÷ '+brl(p.cpv)+' × 100 = '+pc(r.markup),
-  'Equilíbrio = teto_centavo(('+brl(p.cpv)+' + '+brl(p.frete)+') × '+fmt(r.f)+') = '+brl(r.equilibrio),
-  'Mínimo = teto_centavo('+brl(r.custo)+' ÷ (1 − '+pc(s.regra.minMargem)+') × '+fmt(r.f)+') = '+brl(r.minimo),
+  'Equilíbrio = teto_centavo(('+brl(p.cpv)+' + '+brl(p.frete)+') × '+fmt(r.f,4)+') = '+brl(r.equilibrio),
+  'Mínimo = teto_centavo('+brl(r.custo)+' ÷ (1 − '+pc(s.regra.minMargem)+') × '+fmt(r.f,4)+') = '+brl(r.minimo),
   'Desconto máximo seguro = piso_2casas(max(0,(1 − '+brl(r.minimo)+' ÷ '+brl(r.preco)+') × 100)) = '+pc(r.descontoMax),
   'Composição: preço − receita − ICMS − CBS − IBS − IS = '+fmt(r.preco-r.receita-r.icms-r.cbs-r.ibs-r.is,12)+' (precisão interna); componentes exibidos podem diferir em centavos.'
  ]):[];
@@ -388,7 +390,7 @@ ${r&&html`<section class="panel">
 </tr>`})}</tbody>
 </table>
 </div>
-<${Detalhes} linhas=${['Preço alternativo = preço atual '+brl(r.preco)+' × (1 + variação).','Receita = preço alternativo ÷ '+fmt(r.f)+'; resultado = receita − '+brl(r.custo)+'.','As três margens usam os denominadores descritos no glossário.',...linhasCalc.slice(-6)]}/>
+<${Detalhes} linhas=${['Preço alternativo = preço atual '+brl(r.preco)+' × (1 + variação).','Receita = preço alternativo ÷ '+fmt(r.f,4)+'; resultado = receita − '+brl(r.custo)+'.','As três margens usam os denominadores descritos no glossário.',...linhasCalc.slice(-6)]}/>
 </section>
 `:html`<div class="notice bad">Corrija o produto para simular preços.</div>`;
  const pedidoView=html`<${TelaPedido} s=${s} mudar=${mudar} resultado=${pr} erro=${pedido.erro} mensagem=${setMensagem} resumo=${resumo} copiar=${copiar} exportavel=${exportavel}/>`;
