@@ -48,6 +48,22 @@
     {
       "id": "G12: alíquotas de uma tabela não vazam para outra ou outro horizonte",
       "situacao": "OK"
+    },
+    {
+      "id": "G13: contexto Fiscal é projetado sem alterar o estado e rege todas as tabelas",
+      "situacao": "OK"
+    },
+    {
+      "id": "G14: tratamento reduzido e zero chegam à precificação e ao pedido",
+      "situacao": "OK"
+    },
+    {
+      "id": "G15: exceção parcial preserva herança e horizonte não depende da data editada",
+      "situacao": "OK"
+    },
+    {
+      "id": "G16: Simples central usa taxa do horizonte e bloqueia composição híbrida",
+      "situacao": "OK"
     }
   ]
 }

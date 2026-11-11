@@ -34,3 +34,7 @@ Object.assign(GLOSSARIO,{
  margemTabela:['Margem desejada da tabela','Meta usada para formar o preço sugerido. A base escolhida no cabeçalho vale para as linhas. O resultado efetivo é conferido separadamente.','Resultado = preço da reforma − custo líquido − frete − operacional − comissão. A meta deve caber no denominador de formação de preço.']
 });
 REGRAS_AUDITADAS.push(['R13','Despesas, frete por tonelada e desconto de tabela','Premissas comerciais explícitas','Sem fórmula legal de precificação; Simples: LC 123 art.13 e LC 214 art.41','calcularEntrada / calcularTabela','G01–G10','Não somar DAS total aos mesmos tributos regulares; validar bases comerciais.',FONTES.lc123]);
+
+Object.assign(GLOSSARIO,{
+ composicaoFiscal:['Regime da empresa e composição da tabela','Regular: usa as alíquotas efetivas ICMS/CBS/IBS/IS do cenário. Simples total: deduz a taxa efetiva total informada, sem somar novamente esses tributos. Não é a classificação padrão/reduzida/zero do produto. A aba Fiscal centraliza o regime da empresa; sem informação, permanece a hipótese local da tabela.','Regular: líquido = preço ÷ fator do cenário. Simples total: líquido = preço × (1 − taxa efetiva). LC 214/2025 art.41 §§2º–4º; LC 123/2006 art.13. A opção IBS/CBS fora do Simples exige composição própria ainda não implementada.'],
+});

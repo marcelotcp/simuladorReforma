@@ -49,17 +49,18 @@ function KPI({titulo,valor,termo,sub}){return html`<div class="kpi">
 </div>`}
 function Sinal({status}){const texto={seguro:'✓ Dentro da política comercial',abaixo:'! Requer ajuste de preço',prejuizo:'× Venda com prejuízo',pendente:'! Custo pendente',vazio:'Pedido sem itens'};return html`<span class=${'badge '+(status==='seguro'?'ok':status==='prejuizo'?'bad':'warn')}>${texto[status]||'! Revisar dados'}</span>`}
 function App(){
- const inicio=useMemo(carregar,[]),[s,setS]=useState(()=>{const o=inicio.s;o.modo='gestor';if(window.ABA_INICIAL)o.aba=window.ABA_INICIAL;return o});
+ const inicio=useMemo(carregar,[]),[estado,setS]=useState(()=>{const o=inicio.s;o.modo='gestor';if(window.ABA_INICIAL)o.aba=window.ABA_INICIAL;return o});
+ const s=useMemo(()=>M.prepararCenario(estado),[estado]);
  const [mensagem,setMensagem]=useState(inicio.aviso),[mudou,setMudou]=useState(false),[preview,setPreview]=useState(false),[codigo,setCodigo]=useState(''),[tipoExport,setTipoExport]=useState('comercial'),[candidato,setCandidato]=useState(null),[busca,setBusca]=useState('');
  const vendedor=false,comercial=s.tipo==='comercial',p=s.produtos.find(x=>x.id===s.selecionado)||s.produtos[0],param=s.parametros[s.ano];
- function mudar(fn){setMudou(true);setS(old=>{const next=clone(old);fn(next);migrarGrade(next);next.revisao=(old.revisao||0)+1;return next})}
+ function mudar(fn){setMudou(true);setS(old=>{const next=clone(old);fn(next);if(['ufOrigem','ufDestino','regime'].some(k=>next.contexto[k]!==old.contexto[k]))for(const p of next.produtos)p.validado=false;migrarGrade(next);next.revisao=(old.revisao||0)+1;return next})}
  const up=(k,v)=>mudar(x=>{const q=x.produtos.find(y=>y.id===p.id);if(k==='preco'&&q.tabelasPreco?.length){q.tabelasPreco.find(t=>t.id===q.tabelaVendaId).precoConsumidor=v;q.preco=null}else q[k]=v}),reg=(k,v)=>mudar(x=>x.regra[k]=v),ped=(k,v)=>mudar(x=>x.pedido[k]=v);
- const par=(k,v)=>mudar(x=>{const a=x.parametros[x.ano];x.historico=[...(x.historico||[]),{quando:new Date().toISOString(),horizonte:x.ano,campo:k,anterior:a[k],novo:v,origem:'edição local'}].slice(-500);a[k]=v;a.alterado=true;a.atualizado=hoje();a.situacao='Alterado manualmente — requer validação'});
+ const par=(k,v)=>mudar(x=>{const a=x.parametros[x.ano];x.historico=[...(x.historico||[]),{quando:new Date().toISOString(),horizonte:x.ano,campo:k,anterior:a[k],novo:v,origem:'edição local'}].slice(-500);a[k]=v;a.alterado=true;a.atualizado=hoje();a.situacao='Alterado manualmente — requer validação';for(const q of x.produtos)q.validado=false});
  const calc=useMemo(()=>comercial?{valor:null,erro:null}:tentativa(()=>M.calcularProduto(p,s.regra,param)),[s,p]);const r=calc.valor;
  const pedido=useMemo(()=>tentativa(()=>comercial?M.calcularPedidoComercial(s.pedido,s.produtos,s.regra):M.calcularPedido(s.pedido,s.produtos,s.regra,s.parametros,s.ano)),[s]);const pr=pedido.valor;
  const credito=(!comercial&&r)?tentativa(()=>M.calcularCaixa(r,p.creditos,p.caixa)):{valor:null,erro:null};
  useEffect(()=>{document.documentElement.dataset.theme=s.tema},[s.tema]);
- useEffect(()=>{if(!mudou)return;try{localStorage.setItem(CHAVE,JSON.stringify(s))}catch(e){setMensagem('Não foi possível salvar neste navegador. Exporte um backup JSON para preservar os dados.')}},[s,mudou]);
+ useEffect(()=>{if(!mudou)return;try{localStorage.setItem(CHAVE,JSON.stringify(estado))}catch(e){setMensagem('Não foi possível salvar neste navegador. Exporte um backup JSON para preservar os dados.')}},[estado,mudou]);
  useEffect(()=>{const v=window.visualViewport;if(!v)return;const f=()=>{document.documentElement.style.setProperty('--keyboard-inset',Math.max(0,innerHeight-v.height-v.offsetTop)+'px')};f();v.addEventListener('resize',f);v.addEventListener('scroll',f);return()=>{v.removeEventListener('resize',f);v.removeEventListener('scroll',f)}},[]);
  const ehPedido=s.aba==='pedido'||vendedor;
  const gradeAtiva=!vendedor&&!comercial&&s.aba==='preco';
@@ -91,7 +92,7 @@ function App(){
  function mudarItem(id,k,v){mudar(x=>x.pedido.itens.find(y=>y.produtoId===id)[k]=v)}
  function adicionar(id){if(s.pedido.itens.some(x=>x.produtoId===id)){setMensagem('Este produto já está no pedido. Altere a quantidade.');return}mudar(x=>x.pedido.itens.push({produtoId:id,quantidade:1,preco:null}))}
  function pacote(tipo){
-  if(tipo==='interno')return {...clone(s),autoria:AUTORIA,tipo:'interno',modo:'gestor'};
+  if(tipo==='interno')return {...clone(estado),autoria:AUTORIA,tipo:'interno',modo:'gestor'};
   const produtos=s.produtos.map(p=>{const q=comercial?null:M.calcularProduto(p,s.regra,param);if(q&&(q.status!=='seguro'))throw Error(p.nome+': ajuste custo e preço antes de publicar a tabela comercial.');return {id:p.id,nome:p.nome,unidade:p.unidade,ncm:p.ncm,tratamento:p.tratamento,seletivo:p.seletivo,validado:p.validado,faixas:clone(p.faixas),precoComercial:comercial?p.precoComercial:q.preco,pisoComercial:comercial?p.pisoComercial:q.minimo,descontoTabela:comercial?p.descontoTabela:p.tabelasPreco?.find(t=>t.id===p.tabelaVendaId)?.desconto}});
   return {versao:4,autoria:AUTORIA,tipo:'comercial',ano:s.ano,parametros:{[s.ano]:clone(param)},regra:{...clone(s.regra),baseMeta:'cpv',minMargem:0},produtos,contexto:clone(s.contexto),publicadoEm:new Date().toISOString()};
  }
@@ -250,7 +251,8 @@ ${[0.99,0.9,0.5].map(v=>html`<${Botao} class="btn small" key=${v} onClick=${()=>
 <div class="grid">
 <${Campo} titulo="UF de origem" tipo="select" valor=${s.contexto.ufOrigem} opcoes=${[['','Selecione a UF'],...UFS_VALIDAS.map(([sigla,nome])=>[sigla,sigla+' — '+nome])]} alterar=${v=>mudar(x=>x.contexto.ufOrigem=v)}/>
 <${Campo} titulo="UF de destino" tipo="select" valor=${s.contexto.ufDestino} opcoes=${[['','Selecione a UF'],...UFS_VALIDAS.map(([sigla,nome])=>[sigla,sigla+' — '+nome])]} alterar=${v=>mudar(x=>x.contexto.ufDestino=v)}/>
-<${Campo} titulo="Regime do fornecedor" tipo="select" valor=${s.contexto.regime} opcoes=${[['Não informado','Não informado'],['Regular','Regime regular IBS/CBS'],['Simples','Simples: IBS/CBS dentro do Simples'],['Simples regular','Simples: opção IBS/CBS regular']]} alterar=${v=>mudar(x=>x.contexto.regime=v)}/>
+<${Campo} titulo="Regime da empresa (vendedora)" tipo="select" valor=${s.contexto.regime} opcoes=${[['Não informado','Não informado'],['Regular','Regime regular IBS/CBS'],['Simples','Simples: IBS/CBS dentro do Simples'],['Simples regular','Simples: opção IBS/CBS regular']]} alterar=${v=>mudar(x=>x.contexto.regime=v)}/>
+${s.contexto.regime==='Simples'&&html`<${Campo} titulo="Simples: alíquota efetiva total de estudo (%)" valor=${param.simplesEfetivo??null} alterar=${v=>par('simplesEfetivo',v)} dica="Percentual informado pelo responsável fiscal para o horizonte selecionado; vale para todas as tabelas. Não calcula anexo ou RBT12 e não separa parcelas do DAS."/>`}
 <${CampoNcm} key=${p.id} produto=${p} alterar=${v=>mudar(x=>{const q=x.produtos.find(q=>q.id===p.id);q.ncm=v;q.validado=false})}/>
 <${Campo} titulo="Tratamento de CBS/IBS do produto" termo="regime" tipo="select" valor=${p.tratamento} opcoes=${[['padrao','Padrão — hipótese'],['reduzida','Redução de 60% — depende de enquadramento'],['zero','Zero / cesta básica — depende de enquadramento']]} alterar=${v=>{up('tratamento',v);up('validado',false)}}/>
 </div>
@@ -258,10 +260,14 @@ ${[0.99,0.9,0.5].map(v=>html`<${Botao} class="btn small" key=${v} onClick=${()=>
 <input type="checkbox" checked=${p.seletivo} onChange=${e=>{up('seletivo',e.target.checked);up('validado',false)}}/>Simular incidência de Imposto Seletivo<${Ajuda} termo="is"/>
 </label>
 <label class="checkrow">
-<input type="checkbox" checked=${p.validado} onChange=${e=>{if(e.target.checked&&(!validarNcm(p.ncm)||!s.contexto.ufOrigem||!s.contexto.ufDestino||s.contexto.regime==='Não informado')){setMensagem('Informe NCM existente, UFs de origem/destino e regime antes de registrar a revisão.');return}up('validado',e.target.checked)}}/>Registrar enquadramento revisado pelo responsável (declaração local)</label>${s.contexto.regime.startsWith('Simples')&&html`<div class="notice bad">Este motor calcula o cenário regular. O DAS e as regras próprias do Simples não são calculados. Use os resultados apenas como comparação; confirme créditos e opção pelo regime regular.</div>`}</section>
+<input type="checkbox" checked=${p.validado} onChange=${e=>{if(e.target.checked&&(!validarNcm(p.ncm)||!s.contexto.ufOrigem||!s.contexto.ufDestino||s.contexto.regime==='Não informado')){setMensagem('Informe NCM existente, UFs de origem/destino e regime antes de registrar a revisão.');return}up('validado',e.target.checked)}}/>Registrar enquadramento revisado pelo responsável (declaração local)</label>${s.contexto.regime==='Simples'&&html`<div class="notice warn">Simulação gerencial do Simples: receita líquida = preço × (1 − alíquota efetiva total). Não somar ICMS/CBS/IBS regulares novamente. Não é apuração do DAS nem calcula seus componentes ou créditos. Redução/zero de CBS/IBS não reduz automaticamente a taxa total informada.</div>`}${s.contexto.regime==='Simples regular'&&html`<div class="notice bad" role="alert">IBS/CBS fora do Simples exigem separar as parcelas do DAS. Essa composição ainda não é suportada; precificação e pedido ficam com cálculo pendente, sem somar tributos em duplicidade.</div>`}
+<div class="notice">A aba Fiscal define o regime da empresa e os parâmetros por horizonte. Tratamento e NCM pertencem ao produto selecionado; alterações de taxas recalculam sugerido, líquido e margens em todas as telas, sem substituir o preço de venda digitado. UFs e NCM não geram alíquotas automaticamente.</div>
+</section>
 
 <section class="panel">
 <h2>Parâmetros fiscais · ${s.ano}</h2>
+${p.tabelasPreco?.some(t=>M.fiscalTabela(p,t,param).alterado)&&html`<div class="notice warn">Existem alíquotas próprias em tabelas deste produto. Elas prevalecem nos campos indicados, enquanto os demais seguem esta aba.<div class="row"><${Botao} mostrarTexto=${true} class="btn small" onClick=${()=>{if(confirm('Retirar as alíquotas próprias de todas as tabelas deste produto no horizonte '+s.ano+'?'))mudar(x=>{const q=x.produtos.find(q=>q.id===p.id);for(const t of q.tabelasPreco)delete t.fiscal[s.ano];q.validado=false})}}>Usar Fiscal em todas as tabelas deste produto<//></div></div>`}
+
 <div class="row" style=${{marginBottom:20}}>${Object.keys(s.parametros).map(a=>html`<${Botao} key=${a} class=${'btn '+(a===s.ano?'primary':'')} onClick=${()=>mudar(x=>x.ano=a)}>${a}<//>
 `)}</div>
 <div class="grid four">${[['icms','ICMS (%)','icms'],['cbs','CBS de referência do cenário (%)','cbs'],['ibs','IBS total de referência (%)','ibs'],['is','IS: alíquota hipotética (%)','is']].map(([k,t,termo])=>html`<${Campo} key=${k} titulo=${t} termo=${termo} valor=${param[k]} alterar=${v=>par(k,v)}/>` )}</div>

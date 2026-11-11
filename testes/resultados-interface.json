@@ -69,6 +69,10 @@
     {
       "id": "UI16: prejuízo gera alerta e bloqueia impressão, com correção disponível",
       "situacao": "OK"
+    },
+    {
+      "id": "UI18: Fiscal governa tabelas e pedido, com exceção explícita e restauração",
+      "situacao": "OK"
     }
   ]
 }

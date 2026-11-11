@@ -158,6 +158,7 @@
    exigir(/^\d{4}$/.test(ano)&&par&&['encadeado','original'].includes(par.modelo),'Horizonte ou modelo inválido.');
    exigir(['icms','cbs','ibs','is'].every(k=>valido(par[k])&&par[k]>=0&&par[k]<100),'Alíquotas inválidas.');
    exigir(valido(par.fatorReduzida)&&par.fatorReduzida>=0&&par.fatorReduzida<=1&&typeof par.incluirNovosNoIcms==='boolean','Parâmetro de base inválido.');
+   exigir(par.simplesEfetivo==null||(valido(par.simplesEfetivo)&&par.simplesEfetivo>=0&&par.simplesEfetivo<100),'Alíquota efetiva do Simples inválida.');
    exigir(typeof par.fonte==='string'&&typeof par.inicio==='string'&&typeof par.atualizado==='string','Metadados fiscais ausentes.');
   }
   for(const p of o.produtos){
@@ -174,7 +175,7 @@
       exigir(typeof t.nome==='string'&&t.nome.length<=100&&typeof t.id==='string','Identificação da tabela inválida.');
       exigir(['regular','simples'].includes(t.regime)&&['desconto','margem','simples','operacional','comissao'].every(k=>valido(t[k])&&t[k]>=0&&t[k]<100)&&valido(t.freteTonelada)&&t.freteTonelada>=0,'Percentuais ou frete da tabela inválidos.');
       exigir(t.precoConsumidor==null||(valido(t.precoConsumidor)&&t.precoConsumidor>=0),'Preço consumidor inválido.');
-      for(const v of Object.values(t.fiscal||{}))exigir(['icms','cbs','ibs','is'].every(k=>valido(v[k])&&v[k]>=0&&v[k]<100),'Alíquota efetiva da tabela inválida.');
+      for(const v of Object.values(t.fiscal||{}))exigir(['icms','cbs','ibs','is'].every(k=>!Object.hasOwn(v,k)||(valido(v[k])&&v[k]>=0&&v[k]<100)),'Alíquota efetiva da tabela inválida.');
      }
      // Backup de rascunho conserva pendências de peso/viabilidade para correção.
      // Publicação comercial exige cálculo válido e política respeitada na interface.
@@ -222,14 +223,28 @@
   exigir(liquido.gte(0),'Créditos e desconto da entrada superam o custo bruto.');
   return {...e,creditoTotal:num(creditos),custoLiquido:num(liquido)};
  }
+ // Projeção pura do estado: contexto central chega a todas as telas e ao pedido,
+ // sem gravar cópias do regime em cada produto/tabela nem alterar os dados de entrada.
+ function prepararCenario(s){
+  return {...s,parametros:Object.fromEntries(Object.entries(s.parametros).map(([ano,p])=>[ano,{...p,horizonte:ano,contextoFiscal:{...s.contexto}}]))};
+ }
  function fiscalTabela(p,t,parametro){
-  const ano=String(parametro.inicio).slice(0,4),override=t.fiscal?.[ano];
+  const ano=String(parametro.horizonte||String(parametro.inicio).slice(0,4)),override=t.fiscal?.[ano];
   const mult=p.tratamento==='zero'?0:p.tratamento==='reduzida'?parametro.fatorReduzida:1;
-  const efetivas={a:dec(parametro.icms).div(100),c:dec(parametro.cbs).mul(mult).div(100),i:dec(parametro.ibs).mul(mult).div(100),s:dec(p.seletivo?parametro.is:0).div(100)};
-  const taxas=override?{icms:override.icms,cbs:override.cbs,ibs:override.ibs,is:override.is}:{icms:num(efetivas.a.mul(100)),cbs:num(efetivas.c.mul(100)),ibs:num(efetivas.i.mul(100)),is:num(efetivas.s.mul(100))};
-  return {ano,taxas,alterado:!!override,fonte:override?.fonte||parametro.fonte,atualizado:override?.atualizado||parametro.atualizado};
+  const herdadas={icms:parametro.icms,cbs:num(dec(parametro.cbs).mul(mult)),ibs:num(dec(parametro.ibs).mul(mult)),is:p.seletivo?parametro.is:0};
+  const camposAlterados=['icms','cbs','ibs','is'].filter(k=>override&&Object.hasOwn(override,k));
+  const taxas={...herdadas,...Object.fromEntries(camposAlterados.map(k=>[k,override[k]]))};
+  const global=parametro.contextoFiscal,herdarRegime=!!global&&global.regime!=='Não informado'&&!!global.regime;
+  const regime=herdarRegime?(global.regime==='Simples'?'simples':global.regime==='Simples regular'?'simples-regular':'regular'):t.regime;
+  return {ano,taxas,herdadas,camposAlterados,alterado:camposAlterados.length>0,regime,regimeOrigem:herdarRegime?'fiscal':'tabela',simples:herdarRegime&&regime==='simples'?parametro.simplesEfetivo:t.simples,fonte:override?.fonte||parametro.fonte,atualizado:override?.atualizado||parametro.atualizado};
  }
  function calcularTabela(p,t,regra,parametro,override=null){
+  const fiscal=fiscalTabela(p,t,parametro);
+  // LC 214/2025 art.41 §§2º–4º: Simples e opção regular de IBS/CBS são distintos.
+  // Composição híbrida ainda não implementada: bloquear, sem somar DAS total e IBS/CBS.
+  exigir(fiscal.regime!=='simples-regular','Simples com IBS/CBS no regime regular: composição híbrida ainda não implementada. Revise a aba Fiscal; não é seguro somar DAS total e IBS/CBS.');
+  exigir(fiscal.regime!=='simples'||valido(fiscal.simples),'Informe na aba Fiscal a alíquota efetiva total do Simples para este estudo.');
+  t={...t,regime:fiscal.regime,simples:fiscal.simples};
   for(const k of ['desconto','margem','simples','operacional','comissao','freteTonelada'])exigir(valido(t[k])&&t[k]>=0,'Tabela '+t.nome+': valor inválido em '+k+'.');
   for(const k of ['desconto','margem','simples','operacional','comissao'])exigir(t[k]<100,'Tabela '+t.nome+': '+k+' deve ser menor que 100%.');
   exigir(valido(regra.minMargem)&&regra.minMargem>=0&&regra.minMargem<100,'Margem mínima inválida.');
@@ -237,7 +252,7 @@
   const entrada=calcularEntrada(p),cpv=dec(entrada.custoLiquido),peso=dec(entrada.pesoKg);
   exigir(!t.fretePendente||peso.gt(0),'Informe o peso: há frete unitário da versão anterior que não pode ser convertido para tonelada.');
   exigir(t.freteTonelada===0||peso.gt(0),'Informe o peso da unidade de venda para calcular o frete por tonelada.');
-  const frete=dec(t.freteTonelada).mul(peso).div(1000),custo=cpv.plus(frete),fiscal=fiscalTabela(p,t,parametro);
+  const frete=dec(t.freteTonelada).mul(peso).div(1000),custo=cpv.plus(frete);
   exigir(fiscal.alterado||p.tratamento!=='reduzida'||(valido(parametro.fatorReduzida)&&parametro.fatorReduzida>=0&&parametro.fatorReduzida<=1),'Fator de redução inválido.');
   const contexto={...parametro,...fiscal.taxas},produtoFiscal={...p,tratamento:'padrao',seletivo:fiscal.taxas.is>0};
   // A taxa do Simples é a efetiva total informada pelo responsável, não é
@@ -263,6 +278,6 @@
   const margem=receita.gt(0)?num(lucro.div(receita).mul(100)):0,margemMin=receitaMin.gt(0)?num(lucroMin.div(receitaMin).mul(100)):0;
   return {...decomposicao,preco:consumidor,precoConsumidor:consumidor,precoReforma:num(receita),receita:num(receita),precoMinimoComercial:minimoComercial,sugerido,f:num(f),alvo:num(alvoPraticado.div(f)),antesDesconto:num(alvoPraticado.div(f)),custo:num(custo),cpv:num(cpv),frete:num(frete),pesoKg:num(peso),operacional:num(operacional),comissao:num(comissao),simples:t.regime==='simples'?num(preco.minus(receita)):0,lucro:num(lucro),mOper:margem,mVenda:preco.gt(0)?num(lucro.div(preco).mul(100)):0,markup:cpv.gt(0)?num(lucro.div(cpv).mul(100)):null,minimo:pisoTecnico,pisoTecnico,equilibrio,margemNoMinimo:margemMin,lucroNoMinimo:num(lucroMin),descontoMax:preco.gt(0)?Math.max(0,piso(um.minus(dec(pisoTecnico).div(preco)).mul(100))):0,descontoBase:0,descontoFinalEquivalente:0,status:cpv.lte(0)?'pendente':lucro.lt(0)?'prejuizo':margem+1e-9<regra.minMargem?'abaixo':'seguro',statusMinimo:cpv.lte(0)?'pendente':lucroMin.lt(0)?'prejuizo':margemMin+1e-9<regra.minMargem?'abaixo':'seguro',fiscalTabela:fiscal,tabelaId:t.id,percentuais:{desconto:t.desconto,margem:t.margem,operacional:t.operacional,comissao:t.comissao,simples:t.simples},denominador:num(denom),despesasFracao:num(despesa)};
  }
- const api={dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
+ const api={prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
  root.Motor=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

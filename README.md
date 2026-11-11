@@ -142,3 +142,15 @@ Layout de referência: notebook 1366 × 768, com largura máxima de 1440 px. A p
 ### Desconto por quantidade no pedido
 
 Itens novos usam `descontoModo: "automatico"`. O motor busca a última faixa alcançada pela quantidade e limita seu percentual ao máximo global e ao máximo da tabela. A faixa é recalculada ao editar a quantidade, inclusive com preço bruto informado; desconto unitário é aplicado uma única vez e arredondado ao centavo antes da multiplicação pela quantidade. Digitar um desconto seleciona o modo manual; o botão “Usar faixa automática” restaura a regra. Itens antigos com desconto ou preço manual permanecem manuais para preservar os valores salvos. Limitação de faixa (inclusive tabela com máximo 0%) é explicada no pedido. Regressões: P13, P14 e UI17.
+
+### Integração da aba Fiscal
+
+`Motor.prepararCenario(estado)` é uma projeção pura que encaminha contexto da empresa e chave do horizonte aos cálculos, sem mutar os cadastros. `fiscalTabela` resolve alíquotas e composição centralizadas para precificação, descontos, pedido, créditos/caixa e análise de sensibilidade. A composição da tabela é usada como hipótese legada somente enquanto o regime da empresa não estiver informado. Regime e tratamento padrão/reduzido/zero são conceitos diferentes.
+
+- Alíquotas próprias por tabela/horizonte são exceções efetivas explícitas. Editar uma taxa não congela as demais. Exceções completas de versões anteriores são preservadas e podem ser retiradas por tabela ou para todas as tabelas do produto/horizonte.
+- Alterar parâmetros recalcula o sugerido, o líquido e as margens; não substitui o preço de venda manual. Itens do pedido preservam seu preço bruto e usam a decomposição fiscal vigente no cenário.
+- Simples total herda `parametros[ano].simplesEfetivo`, informado pelo responsável e com a fonte/vigência do horizonte. A simulação não apura o DAS nem separa suas parcelas. LC 214/2025 art.41 §§2º–4º e LC 123/2006 art.13.
+- Simples com IBS/CBS no regime regular fica com cálculo pendente: separar parcelas do DAS antes de implementar o cenário híbrido. Não somar DAS total com os mesmos tributos novamente.
+- UF e NCM não são resolvedores automáticos de alíquota/enquadramento. Mudanças de contexto ou parâmetros invalidam a declaração local de revisão. A chave do horizonte não depende do ano digitado na data de início.
+
+Rastreabilidade: herança central → `prepararCenario`/`fiscalTabela` → G13; redução/zero no pedido → G14; exceção parcial/horizonte → G15; Simples e cenário híbrido → G16; fluxo completo da interface → UI18. Validação tributária profissional continua necessária.
