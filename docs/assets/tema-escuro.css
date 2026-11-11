@@ -1,0 +1,70 @@
+/* MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton
+ * Paleta escura centralizada. Somente apresentação; não altera o motor fiscal.
+ * Restrita à tela para preservar a impressão com fundo branco e texto escuro.
+ */
+@media screen {
+ :root[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#101720;--panel:#192330;--field:#233145;
+  --text:#f0f4fa;--muted:#bdc9da;--line:#425771;
+  --blue:#accdff;--onblue:#12253f;--soft:#233c5b;
+  --green:#a7e8bb;--greenbg:#173c2a;
+  --red:#ffb7bf;--redbg:#47242e;
+  --amber:#f6d580;--amberbg:#3d321b;
+  --focus:#c7ddff;--thead:#2d405a;--selected:#294465;
+  --control-line:#7d91ad;--placeholder:#a9b8cc;
+  --help-bg:#283b53;--button-bg:#2b405c;
+  --shadow:0 6px 24px #00000024;
+ }
+ :root[data-theme=dark] body{background:var(--bg);color:var(--text)}
+ :root[data-theme=dark] ::selection{background:#b6d3ff;color:#14253b}
+ :root[data-theme=dark] .credit{background:#17375f;color:#f0f5ff}
+ :root[data-theme=dark] .topbar{background:var(--panel);border-bottom-color:var(--line)}
+ :root[data-theme=dark] .panel,:root[data-theme=dark] .order-total-card,:root[data-theme=dark] .notification-banner{background:var(--panel);color:var(--text);box-shadow:var(--shadow)}
+ :root[data-theme=dark] .tabs{background:var(--panel)}
+ :root[data-theme=dark] .tabs button{color:var(--muted)}
+ :root[data-theme=dark] .tabs button[aria-current=page]{background:var(--soft);color:var(--blue);box-shadow:inset 0 -2px var(--blue)}
+ :root[data-theme=dark] input,:root[data-theme=dark] select,:root[data-theme=dark] textarea{background:var(--field);color:var(--text);border-color:transparent;box-shadow:inset 0 -1px var(--control-line);caret-color:var(--focus)}
+ :root[data-theme=dark] input::placeholder,:root[data-theme=dark] textarea::placeholder{color:var(--placeholder);opacity:1}
+ :root[data-theme=dark] select option{background:var(--field);color:var(--text)}
+ :root[data-theme=dark] input:not(:disabled):hover,:root[data-theme=dark] select:not(:disabled):hover,:root[data-theme=dark] textarea:not(:disabled):hover{background:#2b3d55}
+ :root[data-theme=dark] input:focus-visible,:root[data-theme=dark] select:focus-visible,:root[data-theme=dark] textarea:focus-visible{background:var(--field);border-color:var(--focus);outline:3px solid var(--focus);outline-offset:2px;box-shadow:none}
+ :root[data-theme=dark] input:disabled,:root[data-theme=dark] select:disabled,:root[data-theme=dark] textarea:disabled{background:#1d2a3a;color:var(--muted);-webkit-text-fill-color:var(--muted);opacity:1;box-shadow:none}
+ :root[data-theme=dark] input[type=checkbox],:root[data-theme=dark] input[type=range]{box-shadow:none;accent-color:var(--blue)}
+ :root[data-theme=dark] .erp-prices .pin-name input{background:var(--field);padding-left:7px;box-shadow:inset 0 -1px var(--control-line)}
+ :root[data-theme=dark] .erp-entry-editor input{background:var(--field)}
+ :root[data-theme=dark] .btn,:root[data-theme=dark] .icon-button{background:var(--button-bg);color:var(--text)}
+ :root[data-theme=dark] .btn:not(:disabled):hover,:root[data-theme=dark] .icon-button:not(:disabled):hover{background:#365579;color:var(--text);filter:none}
+ :root[data-theme=dark] .btn.primary,:root[data-theme=dark] .icon-button.primary{background:var(--blue);color:var(--onblue)}
+ :root[data-theme=dark] .btn.primary:not(:disabled):hover,:root[data-theme=dark] .icon-button.primary:not(:disabled):hover{background:#c5ddff;color:var(--onblue)}
+ :root[data-theme=dark] .topbar .icon-button,:root[data-theme=dark] .help>.icon-button,:root[data-theme=dark] .apply-suggested.icon-button,:root[data-theme=dark] .table-choice{background:transparent;color:var(--blue)}
+ :root[data-theme=dark] .icon-button.danger,:root[data-theme=dark] .text-danger,:root[data-theme=dark] .btn.danger{background:transparent;color:var(--red)}
+ :root[data-theme=dark] .btn:disabled,:root[data-theme=dark] .icon-button:disabled{opacity:.6}
+ :root[data-theme=dark] table thead th,:root[data-theme=dark] .erp-products th,:root[data-theme=dark] .erp-prices th,:root[data-theme=dark] .erp-prices th.pin-name,:root[data-theme=dark] .erp-parameters th,:root[data-theme=dark] .order-table th,:root[data-theme=dark] .memory-table th,:root[data-theme=dark] .tax-bases-table thead th{background:var(--thead);color:var(--text);border-bottom-color:var(--control-line)}
+ :root[data-theme=dark] .erp-products tr.is-selected td{background:var(--selected)}
+ :root[data-theme=dark] .erp-products tr:hover td{background:var(--soft)}
+ :root[data-theme=dark] .erp-products tr.is-selected:hover td{background:var(--selected)}
+ :root[data-theme=dark] .valor-calculado{background:var(--soft);color:var(--blue);box-shadow:none}
+ :root[data-theme=dark] .valor-calculado.reforma{background:var(--greenbg);color:var(--green)}
+ :root[data-theme=dark] .valor-calculado:hover{background:#2d4b70;color:#d3e4ff}
+ :root[data-theme=dark] .valor-calculado.reforma:hover{background:#215238;color:#c5f5d3}
+ :root[data-theme=dark] .notice{background:var(--soft);color:var(--text)}
+ :root[data-theme=dark] .notice.warn{background:var(--amberbg);border-left-color:var(--amber)}
+ :root[data-theme=dark] .notice.bad{background:var(--redbg);border-left-color:var(--red)}
+ :root[data-theme=dark] .notice.ok{background:var(--greenbg);border-left-color:var(--green)}
+ :root[data-theme=dark] .notice.warn strong{color:var(--amber)}
+ :root[data-theme=dark] .notice.bad strong{color:var(--red)}
+ :root[data-theme=dark] .notice.ok strong{color:var(--green)}
+ :root[data-theme=dark] .badge.ok,:root[data-theme=dark] .entry-margin.ok{background:var(--greenbg);color:var(--green)}
+ :root[data-theme=dark] .badge.warn,:root[data-theme=dark] .entry-margin.warn{background:var(--amberbg);color:var(--amber)}
+ :root[data-theme=dark] .badge.bad{background:var(--redbg);color:var(--red)}
+ :root[data-theme=dark] .helpbox{background:var(--help-bg);color:var(--text);border:1px solid var(--control-line);box-shadow:0 12px 40px #0008}
+ :root[data-theme=dark] .helpbox code,:root[data-theme=dark] .helpbox small,:root[data-theme=dark] .helpbox .muted{color:var(--muted)}
+ :root[data-theme=dark] .helpbox .btn,:root[data-theme=dark] .helpbox .icon-button{background:var(--button-bg);color:var(--text)}
+ :root[data-theme=dark] .formula,:root[data-theme=dark] .total-formula,:root[data-theme=dark] .tax-base-formula td{background:var(--field);color:var(--text)}
+ :root[data-theme=dark] .order-total-card.featured{background:#214674;color:#f5f8ff}
+ :root[data-theme=dark] .order-total-card.featured .total-label,:root[data-theme=dark] .order-total-card.featured>small{color:#d0e2ff}
+ :root[data-theme=dark] .order-total-card.featured .total-value{color:#f5f8ff}
+ :root[data-theme=dark] .order-table .icon-button{background:transparent}
+ :root[data-theme=dark] .tablewrap,:root[data-theme=dark] pre,:root[data-theme=dark] .ncm-options{scrollbar-color:#839ab9 var(--bg)}
+}
