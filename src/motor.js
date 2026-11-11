@@ -330,6 +330,24 @@
   const margem=receita.gt(0)?num(lucro.div(receita).mul(100)):0,margemMin=receitaMin.gt(0)?num(lucroMin.div(receitaMin).mul(100)):0;
   return {...decomposicao,preco:consumidor,precoConsumidor:consumidor,precoReforma:num(receita),receita:num(receita),precoMinimoComercial:minimoComercial,sugerido,f:num(f),alvo:num(alvoPraticado.div(f)),antesDesconto:num(alvoPraticado.div(f)),custo:num(custo),cpv:num(cpv),frete:num(frete),pesoKg:num(peso),operacional:num(operacional),comissao:num(comissao),simples:t.regime==='simples'?num(preco.minus(receita)):0,lucro:num(lucro),mOper:margem,mVenda:preco.gt(0)?num(lucro.div(preco).mul(100)):0,markup:cpv.gt(0)?num(lucro.div(cpv).mul(100)):null,minimo:pisoTecnico,pisoTecnico,equilibrio,margemNoMinimo:margemMin,lucroNoMinimo:num(lucroMin),descontoMax:preco.gt(0)?Math.max(0,piso(um.minus(dec(pisoTecnico).div(preco)).mul(100))):0,descontoBase:0,descontoFinalEquivalente:0,status:cpv.lte(0)?'pendente':lucro.lt(0)?'prejuizo':margem+1e-9<regra.minMargem?'abaixo':'seguro',statusMinimo:cpv.lte(0)?'pendente':lucroMin.lt(0)?'prejuizo':margemMin+1e-9<regra.minMargem?'abaixo':'seguro',fiscalTabela:fiscal,tabelaId:t.id,percentuais:{desconto:t.desconto,margem:t.margem,operacional:t.operacional,comissao:t.comissao,simples:t.simples},denominador:num(denom),despesasFracao:num(despesa)};
  }
+ // Modalidade opcional: preco comercial exclui CBS/IBS; a projecao os inclui.
+ function calcularTabela(p,t,regra,parametro,override=null){
+  if(regra.modoPrecificacao!=='sem_cbs_ibs')return calcularTabelaAtual(p,t,regra,parametro,override);
+  const fiscal=fiscalTabela(p,t,parametro);
+  if(fiscal.regime==='simples')return calcularTabelaAtual(p,t,regra,parametro,override);
+  const ano=fiscal.ano;
+  const sem={...parametro,cbs:0,ibs:0};
+  const tSem={...t,fiscal:{...t.fiscal,[ano]:{...t.fiscal?.[ano],cbs:0,ibs:0}}};
+  const comercial=calcularTabelaAtual(p,tSem,regra,sem,override);
+  const contexto={...parametro,...fiscal.taxas};
+  const produtoFiscal={...p,tratamento:'padrao',seletivo:fiscal.taxas.is>0};
+  const fatorIntegral=fator(produtoFiscal,contexto);
+  const precoReforma=teto(dec(comercial.receita).mul(fatorIntegral));
+  const projecao=decompor(precoReforma,produtoFiscal,contexto);
+  return {...comercial,precoReforma,projecaoReforma:projecao,fiscalTabela:fiscal,
+   modalidadePrecificacao:'sem_cbs_ibs',fatorReforma:num(fatorIntegral),
+   acrescimoReforma:dinheiro(dec(precoReforma).minus(comercial.preco))};
+ }
  const api={descontoPedido,conciliarPrecoBase,memoriaTributos,prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
  root.Motor=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
