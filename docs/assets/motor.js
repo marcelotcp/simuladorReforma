@@ -132,6 +132,24 @@
   const folga=somar(x=>dec(x.final).minus(dec(x.resultado.minimo).mul(x.l.quantidade)));
   return {itens,total,totalOperacao,outrasDespesas:pedido.outrasDespesas||0,ipi:pedido.ipiInformado||0,icmsSt:pedido.icmsStInformado||0,brutoItens:somar(x=>x.brutoItem),descontoItens:somar(x=>x.descontoItem),descontoTotal:dinheiro(dec(somar(x=>x.descontoItem)).plus(pedido.desconto)),semReforma:dinheiro(dec(total).minus(impostos.cbs).minus(impostos.ibs)),reforma:dinheiro(dec(impostos.cbs).plus(impostos.ibs)),receita,lucro,custo,cpv,frete,...impostos,mOper:margem,mVenda:total?lucro/total*100:0,markup:cpv?lucro/cpv*100:null,quantidade:somar(x=>x.l.quantidade),tabela:somar(x=>dec(x.r.preco).mul(x.l.quantidade)),descontoMaxAdicional:Math.max(0,piso(folga)),status:!itens.length?'vazio':itens.some(x=>x.resultado.status==='pendente')?'pendente':itens.some(x=>x.resultado.lucro<0)?'prejuizo':itens.some(x=>x.resultado.status==='abaixo'||x.foraIntervalo)?'abaixo':'seguro'};
  }
+ // Memória estruturada a partir dos resultados já calculados. Não arredonda
+ // bases nem tributos: valores unitários × quantidade, como os totais do pedido.
+ // Não cria base fiscal para IPI/ST informados nem separa parcelas do DAS.
+ function memoriaTributos(r,parametro,quantidade=1){
+  exigir(valido(quantidade)&&quantidade>0,'Quantidade inválida para detalhar os tributos.');
+  const simples=r.fiscalTabela?.regime==='simples';
+  const fonte=r.fiscalTabela?.fonte||parametro.fonte,atualizado=r.fiscalTabela?.atualizado||parametro.atualizado;
+  const baseIcmsCompleta=parametro.modelo!=='original'&&parametro.incluirNovosNoIcms;
+  const dados=[
+   ['icms','ICMS',r.baseIcms,baseIcmsCompleta?'Base ICMS = preço final (inclui o próprio ICMS e CBS/IBS no cenário)':'Base ICMS = (receita sem tributos modelados + IS) ÷ (1 − alíquota ICMS)',baseIcmsCompleta?String(r.preco):'('+r.receita+' + '+(r.is||0)+') ÷ (1 − '+num(pct(r.aliquotas.icms))+')'],
+   ['cbs','CBS',r.baseCbsIbs,'Base CBS = receita sem tributos modelados + IS',r.receita+' + '+(r.is||0)],
+   ['ibs','IBS',r.baseCbsIbs,'Base IBS = receita sem tributos modelados + IS',r.receita+' + '+(r.is||0)],
+   ['is','IS',r.receita,'Base IS de referência do modelo = receita antes do IS',String(r.receita)]
+  ];
+  const linhas=dados.map(([chave,tributo,base,formulaBase,expressaoBase])=>({chave,tributo,quantidade,baseUnitaria:simples?null:base,baseItem:simples?null:num(dec(base).mul(quantidade)),aliquota:simples?null:r.aliquotas[chave],valorUnitario:simples?null:r[chave],valorItem:simples?null:num(dec(r[chave]).mul(quantidade)),formulaBase:simples?'Não segregado no modelo de Simples total. Não representa tributo isento nem base zero.':formulaBase,expressaoBase:simples?null:expressaoBase,fonte,atualizado,observacao:simples?'A taxa efetiva total é informada pelo responsável; o motor não separa os tributos do DAS.':chave==='is'&&r.aliquotas.is===0?'IS não incidente no cenário; base exibida apenas como referência matemática.':'Base do cenário de estudo; confirmar enquadramento e incidência com o responsável fiscal.'}));
+  if(simples)linhas.push({chave:'simples',tributo:'Simples · estimativa total',quantidade,baseUnitaria:r.preco,baseItem:num(dec(r.preco).mul(quantidade)),aliquota:r.percentuais.simples,valorUnitario:r.simples,valorItem:num(dec(r.simples).mul(quantidade)),formulaBase:'Base da estimativa gerencial = preço final de venda',expressaoBase:String(r.preco),fonte,atualizado,observacao:'Preço × taxa efetiva informada. Não é apuração fiscal do DAS nem cálculo de RBT12.'});
+  return linhas;
+ }
  function calcularCaixa(venda,creditos,caixa){
   for(const v of Object.values(creditos))exigir(valido(v)&&v>=0,'Crédito informado inválido.');
   for(const k of ['cobertura','percentualSimplificado'])exigir(valido(caixa[k])&&caixa[k]>=0&&caixa[k]<=100,'Percentual do split deve estar entre 0% e 100%.');
@@ -278,6 +296,6 @@
   const margem=receita.gt(0)?num(lucro.div(receita).mul(100)):0,margemMin=receitaMin.gt(0)?num(lucroMin.div(receitaMin).mul(100)):0;
   return {...decomposicao,preco:consumidor,precoConsumidor:consumidor,precoReforma:num(receita),receita:num(receita),precoMinimoComercial:minimoComercial,sugerido,f:num(f),alvo:num(alvoPraticado.div(f)),antesDesconto:num(alvoPraticado.div(f)),custo:num(custo),cpv:num(cpv),frete:num(frete),pesoKg:num(peso),operacional:num(operacional),comissao:num(comissao),simples:t.regime==='simples'?num(preco.minus(receita)):0,lucro:num(lucro),mOper:margem,mVenda:preco.gt(0)?num(lucro.div(preco).mul(100)):0,markup:cpv.gt(0)?num(lucro.div(cpv).mul(100)):null,minimo:pisoTecnico,pisoTecnico,equilibrio,margemNoMinimo:margemMin,lucroNoMinimo:num(lucroMin),descontoMax:preco.gt(0)?Math.max(0,piso(um.minus(dec(pisoTecnico).div(preco)).mul(100))):0,descontoBase:0,descontoFinalEquivalente:0,status:cpv.lte(0)?'pendente':lucro.lt(0)?'prejuizo':margem+1e-9<regra.minMargem?'abaixo':'seguro',statusMinimo:cpv.lte(0)?'pendente':lucroMin.lt(0)?'prejuizo':margemMin+1e-9<regra.minMargem?'abaixo':'seguro',fiscalTabela:fiscal,tabelaId:t.id,percentuais:{desconto:t.desconto,margem:t.margem,operacional:t.operacional,comissao:t.comissao,simples:t.simples},denominador:num(denom),despesasFracao:num(despesa)};
  }
- const api={prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
+ const api={memoriaTributos,prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
  root.Motor=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

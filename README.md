@@ -154,3 +154,11 @@ Itens novos usam `descontoModo: "automatico"`. O motor busca a última faixa alc
 - UF e NCM não são resolvedores automáticos de alíquota/enquadramento. Mudanças de contexto ou parâmetros invalidam a declaração local de revisão. A chave do horizonte não depende do ano digitado na data de início.
 
 Rastreabilidade: herança central → `prepararCenario`/`fiscalTabela` → G13; redução/zero no pedido → G14; exceção parcial/horizonte → G15; Simples e cenário híbrido → G16; fluxo completo da interface → UI18. Validação tributária profissional continua necessária.
+
+### Bases de cálculo visíveis
+
+`Motor.memoriaTributos(resultado, parametro, quantidade)` devolve, para cada imposto, base unitária, base do item, alíquota, imposto unitário, imposto do item, fórmula da base, fonte e atualização. Usa a decomposição já calculada e multiplica pela quantidade, sem introduzir novo arredondamento nas bases.
+
+O componente `BasesTributarias` apresenta a mesma memória na precificação, no Fiscal e nos detalhes do item do pedido. No pedido, o resultado utilizado já contém descontos e rateios. O JSON de estudo contém `resultado.basesTributarias` e `resultado.basesPorItem`. Bases e impostos são exibidos em centavos, com até dez casas nos detalhes; isso não altera a política de cálculo.
+
+No Simples total, bases e valores individuais ficam como não segregados; a base da estimativa agregada é o preço de venda, sem afirmar que isso corresponde à apuração oficial do DAS. IPI e ICMS-ST continuam como valores informados, sem inventar base ou alíquota. Rastreabilidade: memória das bases → decomposição do cenário existente (`fator`, `decompor`, `calcularTabela`) → `memoriaTributos` → G17/G18/UI19.

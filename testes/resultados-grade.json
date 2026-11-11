@@ -64,6 +64,14 @@
     {
       "id": "G16: Simples central usa taxa do horizonte e bloqueia composição híbrida",
       "situacao": "OK"
+    },
+    {
+      "id": "G17: memória explicita base unitária, base do item e valor de cada imposto",
+      "situacao": "OK"
+    },
+    {
+      "id": "G18: memória do Simples não inventa bases individuais e acompanha rateios do pedido",
+      "situacao": "OK"
     }
   ]
 }

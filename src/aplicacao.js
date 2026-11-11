@@ -190,7 +190,7 @@ ${[0.99,0.9,0.5].map(v=>html`<${Botao} class="btn small" key=${v} onClick=${()=>
 </i>${n}: ${brl(v)}</span>`)}</div>
 </div>
 </div>
-<${Detalhes} linhas=${linhasCalc}/>
+<${BasesTributarias} resultado=${r} parametro=${param}/><${Detalhes} linhas=${linhasCalc}/>
 </section>
 `}<div id="produto-dados">${produtosForm}</div>`;
  const faixasErros=M.validarFaixas(p.faixas,s.regra.descMin,s.regra.descMax);
@@ -293,12 +293,12 @@ ${p.tabelasPreco?.some(t=>M.fiscalTabela(p,t,param).alterado)&&html`<div class="
 ${r&&html`<section class="panel">
 <h2>Do preço ao resultado</h2>
 <table>
-<tbody>${[['Preço final',r.preco],['(−) ICMS',-r.icms],['(−) CBS',-r.cbs],['(−) IBS',-r.ibs],['(−) IS',-r.is],['Receita sem tributos modelados',r.receita],['(−) CPV',-p.cpv],['(−) Frete',-p.frete],...(r.tabelaId?[['(−) Operacional',-r.operacional],['(−) Comissão',-r.comissao],['(−) Simples',-r.simples]]:[]),['Resultado',r.lucro]].map(([n,v],i)=>html`<tr key=${n} class=${n==='Resultado'?'total':''}>
+<tbody>${[['Preço final',r.preco],['(−) ICMS',-r.icms],['(−) CBS',-r.cbs],['(−) IBS',-r.ibs],['(−) IS',-r.is],['Receita sem tributos modelados',r.receita],['(−) CPV',-(r.cpv??p.cpv)],['(−) Frete',-(r.frete??p.frete)],...(r.tabelaId?[['(−) Operacional',-r.operacional],['(−) Comissão',-r.comissao],['(−) Simples',-r.simples]]:[]),['Resultado',r.lucro]].map(([n,v],i)=>html`<tr key=${n} class=${n==='Resultado'?'total':''}>
 <td>${n}</td>
 <td class="num mono">${brl(v)}</td>
 </tr>`)}</tbody>
 </table>
-<${Detalhes} linhas=${linhasCalc}/>
+<details><summary>Ver bases de cálculo por imposto</summary><${BasesTributarias} resultado=${r} parametro=${param}/></details><${Detalhes} linhas=${linhasCalc}/>
 </section>
 `}`;
  const caixaView=r?html`<section class="panel">
@@ -392,7 +392,7 @@ ${r&&html`<section class="panel">
 </section>
 `:html`<div class="notice bad">Corrija o produto para simular preços.</div>`;
  const pedidoView=html`<${TelaPedido} s=${s} mudar=${mudar} resultado=${pr} erro=${pedido.erro} mensagem=${setMensagem} resumo=${resumo} copiar=${copiar} exportavel=${exportavel}/>`;
- const dadosModelo={autoria:AUTORIA,versaoModelo:4,entrada:{produto:p,contexto:s.contexto,pedido:s.pedido},parametros:{horizonte:s.ano,fiscal:param,comercial:s.regra},resultado:{produto:r,erro:calc.erro,pedido:pr,erroPedido:pedido.erro,caixa:credito.valor},politicas:{arredondamento:'Decimal 32 dígitos; half-up para valores comerciais; teto para sugerido/mínimo; piso para desconto seguro; rateio maiores restos',validacaoFiscal:'Responsável tributário deve validar fontes, enquadramento e regras aplicáveis.'}};
+ const dadosModelo={autoria:AUTORIA,versaoModelo:4,entrada:{produto:p,contexto:s.contexto,pedido:s.pedido},parametros:{horizonte:s.ano,fiscal:param,comercial:s.regra},resultado:{produto:r,basesTributarias:r?M.memoriaTributos(r,param):null,basesPorItem:pr?.itens.map(x=>({produtoId:x.p.id,quantidade:x.l.quantidade,bases:M.memoriaTributos(x.resultado,param,x.l.quantidade)})),erro:calc.erro,pedido:pr,erroPedido:pedido.erro,caixa:credito.valor},politicas:{arredondamento:'Decimal 32 dígitos; half-up para valores comerciais; teto para sugerido/mínimo; piso para desconto seguro; rateio maiores restos',validacaoFiscal:'Responsável tributário deve validar fontes, enquadramento e regras aplicáveis.'}};
  const estudoView=html`<section class="panel">
 <h2>Transferir tabela ou guardar backup</h2>
 <div class="notice">Pacote comercial exclui custos e margens. Pacote interno contém dados de gestão. Base64 é codificação, sem proteção por senha.</div>

@@ -73,6 +73,10 @@
     {
       "id": "UI18: Fiscal governa tabelas e pedido, com exceção explícita e restauração",
       "situacao": "OK"
+    },
+    {
+      "id": "UI19: detalhes mostram bases e alíquotas por imposto no preço e no pedido",
+      "situacao": "OK"
     }
   ]
 }
