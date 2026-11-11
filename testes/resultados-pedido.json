@@ -6,7 +6,7 @@
       "situacao": "OK"
     },
     {
-      "id": "P02: desconto explícito substitui faixa e não é acumulado",
+      "id": "P02: quantidade tem prioridade sobre desconto do item sem acumular",
       "situacao": "OK"
     },
     {
@@ -54,7 +54,11 @@
       "situacao": "OK"
     },
     {
-      "id": "P14: automático respeita teto e manual preserva escolha sem acumular faixa",
+      "id": "P14: faixa prevalece sobre limite manual zero e não acumula desconto do item",
+      "situacao": "OK"
+    },
+    {
+      "id": "P15: item zero recebe faixa e valida margem; cache automático não vira desconto manual",
       "situacao": "OK"
     }
   ]

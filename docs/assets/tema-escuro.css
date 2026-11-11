@@ -1,24 +1,30 @@
 /* MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton
- * Tema preto com superfícies em cinza neutro. Somente apresentação; não altera o motor fiscal.
+ * Tema de estudo inspirado em Primer/GitHub e Fluent/Windows. Somente apresentação; não altera o motor fiscal.
  * Restrita à tela para preservar a impressão com fundo branco e texto escuro.
  */
 @media screen {
  :root[data-theme=dark]{
   color-scheme:dark;
-  --bg:#000000;--panel:#111111;--field:#1f1f1f;
-  --text:#f4f4f4;--muted:#c6c6c6;--line:#484848;
-  --blue:#a6c8ff;--onblue:#101010;--soft:#242424;
-  --green:#a7e8bb;--greenbg:#15241a;
-  --red:#ffb7bf;--redbg:#29181b;
-  --amber:#f6d580;--amberbg:#292416;
-  --focus:#ffffff;--thead:#2b2b2b;--selected:#303030;
-  --control-line:#888888;--placeholder:#aaaaaa;
-  --help-bg:#252525;--button-bg:#2b2b2b;
-  --shadow:0 6px 24px #00000024;
+  --bg:#0d1117;--panel:#161b22;--field:#202020;
+  --text:#e6edf3;--muted:#b1bac4;--line:#484f58;
+  --blue:#58a6ff;--onblue:#0d1117;--soft:#21262d;
+  --green:#7ee787;--greenbg:#132b1d;
+  --red:#ffa198;--redbg:#30181c;
+  --amber:#e3b341;--amberbg:#34280c;
+  --focus:#ffffff;--thead:#21262d;--selected:#30363d;
+  --control-line:#7d8590;--placeholder:#9da7b3;
+  --help-bg:#272c33;--button-bg:#21262d;
+  --shadow:0 6px 24px #0d111724;
  }
+ :root[data-theme=dark] .erp-section-head{background:var(--thead);border-bottom-color:var(--control-line)}
+ :root[data-theme=dark] .section-step{background:var(--bg);color:var(--blue)}
+ :root[data-theme=dark] .panel,:root[data-theme=dark] .order-total-card{border-radius:8px}
+ :root[data-theme=dark] .tabs{border-radius:7px}
+ :root[data-theme=dark] .btn,:root[data-theme=dark] .icon-button{border-radius:6px!important}
+ :root[data-theme=dark] .help>.icon-button{border-radius:50%!important}
  :root[data-theme=dark] body{background:var(--bg);color:var(--text)}
  :root[data-theme=dark] ::selection{background:#b6d3ff;color:#14253b}
- :root[data-theme=dark] .credit{background:#080808;color:#f4f4f4}
+ :root[data-theme=dark] .credit{background:#010409;color:#e6edf3}
  :root[data-theme=dark] .topbar{background:var(--panel);border-bottom-color:var(--line)}
  :root[data-theme=dark] .panel,:root[data-theme=dark] .order-total-card,:root[data-theme=dark] .notification-banner{background:var(--panel);color:var(--text);box-shadow:var(--shadow)}
  :root[data-theme=dark] .tabs{background:var(--panel)}
@@ -27,14 +33,14 @@
  :root[data-theme=dark] input,:root[data-theme=dark] select,:root[data-theme=dark] textarea{background:var(--field);color:var(--text);border-color:transparent;box-shadow:inset 0 -1px var(--control-line);caret-color:var(--focus)}
  :root[data-theme=dark] input::placeholder,:root[data-theme=dark] textarea::placeholder{color:var(--placeholder);opacity:1}
  :root[data-theme=dark] select option{background:var(--field);color:var(--text)}
- :root[data-theme=dark] input:not(:disabled):hover,:root[data-theme=dark] select:not(:disabled):hover,:root[data-theme=dark] textarea:not(:disabled):hover{background:#292929}
+ :root[data-theme=dark] input:not(:disabled):hover,:root[data-theme=dark] select:not(:disabled):hover,:root[data-theme=dark] textarea:not(:disabled):hover{background:#30363d}
  :root[data-theme=dark] input:focus-visible,:root[data-theme=dark] select:focus-visible,:root[data-theme=dark] textarea:focus-visible{background:var(--field);border-color:var(--focus);outline:3px solid var(--focus);outline-offset:2px;box-shadow:none}
- :root[data-theme=dark] input:disabled,:root[data-theme=dark] select:disabled,:root[data-theme=dark] textarea:disabled{background:#171717;color:var(--muted);-webkit-text-fill-color:var(--muted);opacity:1;box-shadow:none}
+ :root[data-theme=dark] input:disabled,:root[data-theme=dark] select:disabled,:root[data-theme=dark] textarea:disabled{background:#161b22;color:var(--muted);-webkit-text-fill-color:var(--muted);opacity:1;box-shadow:none}
  :root[data-theme=dark] input[type=checkbox],:root[data-theme=dark] input[type=range]{box-shadow:none;accent-color:var(--blue)}
  :root[data-theme=dark] .erp-prices .pin-name input{background:var(--field);padding-left:7px;box-shadow:inset 0 -1px var(--control-line)}
  :root[data-theme=dark] .erp-entry-editor input{background:var(--field)}
  :root[data-theme=dark] .btn,:root[data-theme=dark] .icon-button{background:var(--button-bg);color:var(--text)}
- :root[data-theme=dark] .btn:not(:disabled):hover,:root[data-theme=dark] .icon-button:not(:disabled):hover{background:#373737;color:var(--text);filter:none}
+ :root[data-theme=dark] .btn:not(:disabled):hover,:root[data-theme=dark] .icon-button:not(:disabled):hover{background:#30363d;color:var(--text);filter:none}
  :root[data-theme=dark] .btn.primary,:root[data-theme=dark] .icon-button.primary{background:var(--blue);color:var(--onblue)}
  :root[data-theme=dark] .btn.primary:not(:disabled):hover,:root[data-theme=dark] .icon-button.primary:not(:disabled):hover{background:#c5ddff;color:var(--onblue)}
  :root[data-theme=dark] .topbar .icon-button,:root[data-theme=dark] .help>.icon-button,:root[data-theme=dark] .apply-suggested.icon-button,:root[data-theme=dark] .table-choice{background:transparent;color:var(--blue)}
@@ -46,7 +52,7 @@
  :root[data-theme=dark] .erp-products tr.is-selected:hover td{background:var(--selected)}
  :root[data-theme=dark] .valor-calculado{background:var(--soft);color:var(--blue);box-shadow:none}
  :root[data-theme=dark] .valor-calculado.reforma{background:var(--greenbg);color:var(--green)}
- :root[data-theme=dark] .valor-calculado:hover{background:#333333;color:#d3e4ff}
+ :root[data-theme=dark] .valor-calculado:hover{background:#30363d;color:#d3e4ff}
  :root[data-theme=dark] .valor-calculado.reforma:hover{background:#203a29;color:#c5f5d3}
  :root[data-theme=dark] .notice{background:var(--soft);color:var(--text)}
  :root[data-theme=dark] .notice.warn{background:var(--amberbg);border-left-color:var(--amber)}
@@ -62,7 +68,7 @@
  :root[data-theme=dark] .helpbox code,:root[data-theme=dark] .helpbox small,:root[data-theme=dark] .helpbox .muted{color:var(--muted)}
  :root[data-theme=dark] .helpbox .btn,:root[data-theme=dark] .helpbox .icon-button{background:var(--button-bg);color:var(--text)}
  :root[data-theme=dark] .formula,:root[data-theme=dark] .total-formula,:root[data-theme=dark] .tax-base-formula td{background:var(--field);color:var(--text)}
- :root[data-theme=dark] .order-total-card.featured{background:#262626;color:#f5f8ff;box-shadow:inset 0 2px var(--blue)}
+ :root[data-theme=dark] .order-total-card.featured{background:#21262d;color:#f5f8ff;box-shadow:inset 0 2px var(--blue)}
  :root[data-theme=dark] .order-total-card.featured .total-label,:root[data-theme=dark] .order-total-card.featured>small{color:#dedede}
  :root[data-theme=dark] .order-total-card.featured .total-value{color:#f5f8ff}
  :root[data-theme=dark] .order-table .icon-button{background:transparent}

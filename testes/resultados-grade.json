@@ -30,7 +30,7 @@
       "situacao": "OK"
     },
     {
-      "id": "G08: desconto por faixa respeita o máximo da tabela sem duplicar",
+      "id": "G08: faixa do produto tem prioridade sobre limite manual da tabela",
       "situacao": "OK"
     },
     {

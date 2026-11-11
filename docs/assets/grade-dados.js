@@ -24,7 +24,7 @@ function migrarGrade(s){
 Object.assign(GLOSSARIO,{
  consumidor:['Preço consumidor','Preço final editável que será levado à venda quando esta tabela estiver marcada como tabela de venda. Não muda silenciosamente ao editar percentuais.','Entrada do operador. Use Aplicar sugerido quando quiser substituir pelo cálculo.'],
  sugeridoTabela:['Preço sugerido da tabela','Recomendação somente para leitura. Cobre custo, frete, despesas e a meta mesmo após o desconto máximo da linha.','Sobre operação: sugerido = teto((custo + frete) ÷ ((1−margem)/f − operacional − comissão) ÷ (1−desconto)). Sobre CPV: numerador inclui CPV × meta e denominador é 1/f − despesas.'],
- minimoComercial:['Preço mínimo com desconto','Menor valor comercial permitido pelo percentual de desconto desta linha. Não é o mesmo que o piso técnico necessário para preservar a margem.','Preço mínimo = preço consumidor × (1 − desconto máximo).'],
+ minimoComercial:['Preço mínimo com desconto','Valor após o desconto manual parametrizado nesta linha. A faixa por quantidade do produto tem prioridade no pedido e pode resultar em outro preço, sempre com conferência de margem. Não é o piso técnico.','Preço mínimo = preço consumidor × (1 − desconto máximo).'],
  precoReforma:['Preço da reforma · líquido','Preço consumidor sem os tributos modelados na composição ativa. Ainda contém os valores que pagarão custo, frete, operacional, comissão e resultado. Não é o valor do boleto nem o lucro.','Regular: consumidor ÷ fator tributário. Simples total: consumidor × (1 − alíquota efetiva informada).'],
  operacional:['Despesa operacional (%)','Parcela gerencial calculada sobre o preço efetivamente praticado, com tributos incluídos. Não informe despesas já incorporadas ao custo.','Despesa operacional em R$ = preço praticado × operacional ÷ 100.'],
  comissao:['Comissão (%)','Parcela da comissão sobre o preço efetivamente praticado. A base é uma premissa comercial editável no projeto, não uma regra tributária.','Comissão em R$ = preço praticado × comissão ÷ 100.'],
@@ -37,4 +37,8 @@ REGRAS_AUDITADAS.push(['R13','Despesas, frete por tonelada e desconto de tabela'
 
 Object.assign(GLOSSARIO,{
  composicaoFiscal:['Regime da empresa e composição da tabela','Regular: usa as alíquotas efetivas ICMS/CBS/IBS/IS do cenário. Simples total: deduz a taxa efetiva total informada, sem somar novamente esses tributos. Não é a classificação padrão/reduzida/zero do produto. A aba Fiscal centraliza o regime da empresa; sem informação, permanece a hipótese local da tabela.','Regular: líquido = preço ÷ fator do cenário. Simples total: líquido = preço × (1 − taxa efetiva). LC 214/2025 art.41 §§2º–4º; LC 123/2006 art.13. A opção IBS/CBS fora do Simples exige composição própria ainda não implementada.'],
+});
+
+Object.assign(GLOSSARIO,{
+ gradePreco:['Como usar a grade de preços','Edite P. venda para definir o preço levado ao pedido. P. sugerido, P. mínimo e P. líquido são calculados; clique para ver fórmulas e bases. O ícone de confirmação ao lado do sugerido aplica esse preço. O ícone ao lado do nome escolhe a tabela de venda. Expanda Tributos e despesas para editar os parâmetros.','P. mínimo = preço consumidor × (1 − desconto manual da tabela). P. líquido = preço ÷ fator tributário. A faixa de quantidade do produto tem prioridade no pedido; os alertas de margem continuam ativos.'],
 });

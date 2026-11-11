@@ -141,8 +141,9 @@ Layout de referência: notebook 1366 × 768, com largura máxima de 1440 px. A p
 
 ### Desconto por quantidade no pedido
 
-Itens novos usam `descontoModo: "automatico"`. O motor busca a última faixa alcançada pela quantidade e limita seu percentual ao máximo global e ao máximo da tabela. A faixa é recalculada ao editar a quantidade, inclusive com preço bruto informado; desconto unitário é aplicado uma única vez e arredondado ao centavo antes da multiplicação pela quantidade. Digitar um desconto seleciona o modo manual; o botão “Usar faixa automática” restaura a regra. Itens antigos com desconto ou preço manual permanecem manuais para preservar os valores salvos. Limitação de faixa (inclusive tabela com máximo 0%) é explicada no pedido. Regressões: P13, P14 e UI17.
+A faixa cadastrada no produto tem prioridade: ao atingir a quantidade, o desconto é aplicado diretamente ao preço, mesmo com desconto do item vazio/zero e limite manual da tabela igual a zero. Não acumula com o desconto do item. Sem faixa positiva aplicável, usa o desconto manual do item. A faixa respeita o intervalo global do produto; o limite da tabela restringe o desconto manual. Desconto geral da nota vem depois, por rateio, e não elimina os alertas de margem.
 
+O campo “Desconto do item” conserva o percentual manual; o percentual efetivamente aplicado aparece separado, com sua origem e fórmula. Editar a quantidade reavalia a faixa. `descontoModo: "automatico"` de versões anteriores identifica um cache legado: seu percentual não vira desconto manual quando a quantidade sai da faixa. A regra atual também recalcula pedidos antigos ao abri-los. Arredondamento: preço unitário após o desconto escolhido ao centavo, depois multiplicação pela quantidade. Motor compartilhado: `descontoPedido`, usado no pedido Gestor e comercial. Regressões: G08, P02, P13–P15, UI17.
 ### Integração da aba Fiscal
 
 `Motor.prepararCenario(estado)` é uma projeção pura que encaminha contexto da empresa e chave do horizonte aos cálculos, sem mutar os cadastros. `fiscalTabela` resolve alíquotas e composição centralizadas para precificação, descontos, pedido, créditos/caixa e análise de sensibilidade. A composição da tabela é usada como hipótese legada somente enquanto o regime da empresa não estiver informado. Regime e tratamento padrão/reduzido/zero são conceitos diferentes.
@@ -165,7 +166,7 @@ No Simples total, bases e valores individuais ficam como não segregados; a base
 
 ### Tema escuro
 
-Paleta de tela centralizada em `src/tema-escuro.css`, carregada após os estilos compartilhados. Fundo preto puro (#000000), painéis e campos em cinza neutro, campos com linha inferior visível, cabeçalhos destacados, valores calculados distintos dos editáveis, ajuda com fundo escuro e alertas sem depender apenas da cor. O CSS é restrito a `@media screen`, preservando a impressão. As principais combinações de texto foram conferidas por luminância relativa (mínimo 4,5:1) e o contorno dos campos acima de 3:1; isso não equivale a uma certificação integral de acessibilidade.
+Paleta de tela centralizada em `src/tema-escuro.css`, carregada após os estilos compartilhados. Paleta inspirada em Primer/GitHub e Fluent/Windows: fundo grafite (#0d1117), superfícies em camadas, campos com linha inferior visível, cabeçalhos destacados, valores calculados distintos dos editáveis, ajuda com fundo escuro e alertas sem depender apenas da cor. O CSS é restrito a `@media screen`, preservando a impressão. As principais combinações de texto foram conferidas por luminância relativa (mínimo 4,5:1) e o contorno dos campos acima de 3:1; isso não equivale a uma certificação integral de acessibilidade.
 
 ### Leitura de números
 
@@ -178,3 +179,9 @@ Os detalhes mostram `preço final − ICMS − CBS − IBS = base CBS/IBS`, com 
 No pedido, a composição comercial aparece antes: bruto do item − desconto do item − desconto geral rateado + outras despesas rateadas = valor submetido à decomposição. IPI e ST informados à parte não são incluídos artificialmente nessa base. O motor não passa a apurar esses tributos.
 
 `Motor.conciliarPrecoBase` fornece a conciliação estruturada para a tela e o JSON (`resultado.conciliacaoBase` e conciliações por item). Uma linha de ajuste pode fechar apenas a soma dos valores exibidos em centavos; não muda valores internos, tributos, receita ou bases. Rastreabilidade: cenário de bases existente → `conciliarPrecoBase` → G19/UI20. A composição fiscal segue sujeita à validação profissional.
+
+### Densidade da grade e referências visuais
+
+Cabeçalhos de seção usam faixa de fundo, marcador lateral e separador para identificar o início das tabelas; rodapés discretos indicam seu término. A precificação mantém o alerta agregado apenas quando há pendências. Instruções gerais passam para a ajuda do cabeçalho e para o glossário. Selecionar tabela, aplicar sugerido e consultar/remover permanecem disponíveis por ícones na mesma linha dos valores. A densidade de desktop reduz alturas sem reduzir os alvos de toque no celular.
+
+Referências de tema: Primer Theme Reference (https://primer.style/product/getting-started/react/theme-reference/) e Color in Windows (https://learn.microsoft.com/windows/apps/design/style/color). Adaptação ao ERP, sem pretender reproduzir integralmente a interface desses produtos.

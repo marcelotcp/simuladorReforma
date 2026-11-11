@@ -49,7 +49,10 @@ function KPI({titulo,valor,termo,sub}){return html`<div class="kpi">
 <div class="value mono">${valor}</div>
 <small>${sub}</small>
 </div>`}
-function Sinal({status}){const texto={seguro:'✓ Dentro da política comercial',abaixo:'! Requer ajuste de preço',prejuizo:'× Venda com prejuízo',pendente:'! Custo pendente',vazio:'Pedido sem itens'};return html`<span class=${'badge '+(status==='seguro'?'ok':status==='prejuizo'?'bad':'warn')}>${texto[status]||'! Revisar dados'}</span>`}
+function Sinal({status,compacto=false}){
+ const texto={seguro:'✓ Dentro da política comercial',abaixo:'! Requer ajuste de preço',prejuizo:'× Venda com prejuízo',pendente:'! Custo pendente',vazio:'Pedido sem itens'},curto={seguro:'✓ OK',abaixo:'! Margem',prejuizo:'× Prejuízo',pendente:'! Custo',vazio:'Sem itens'};
+ return html`<span class=${'badge '+(status==='seguro'?'ok':status==='prejuizo'?'bad':'warn')+(compacto?' status-compact':'')} title=${texto[status]||'Revisar dados'} aria-label=${texto[status]||'Revisar dados'}>${compacto?curto[status]||'! Revisar':texto[status]||'! Revisar dados'}</span>`;
+}
 function App(){
  const inicio=useMemo(carregar,[]),[estado,setS]=useState(()=>{const o=inicio.s;o.modo='gestor';if(window.ABA_INICIAL)o.aba=window.ABA_INICIAL;return o});
  const s=useMemo(()=>M.prepararCenario(estado),[estado]);

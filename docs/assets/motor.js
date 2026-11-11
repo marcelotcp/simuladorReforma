@@ -94,6 +94,25 @@
   [...partes].sort((a,b)=>b.resto.cmp(a.resto)||a.k-b.k).forEach(p=>{if(faltam>0){partes[p.k].chao++;faltam--}});
   return partes.map(p=>p.chao/100);
  }
+ // Política comercial do projeto: faixa por quantidade tem precedência.
+ // Atingiu uma faixa com desconto: aplica diretamente, mesmo com desconto do
+ // item em zero. Sem faixa aplicável, usa o desconto manual do item. Não acumula.
+ // O limite da tabela restringe o desconto manual; a faixa segue o limite global
+ // do produto e a margem resultante continua sendo validada separadamente.
+ function descontoPedido(p,l,regra,precoTabela,limiteManual){
+  const fxBase=faixa(p,l.quantidade,regra),fx={...fxBase,pctOriginal:fxBase.pct,pct:Math.min(fxBase.pct,regra.descMax)};
+  exigir(l.descontoPct==null||(valido(l.descontoPct)&&l.descontoPct>=0&&l.descontoPct<100),'Desconto do item deve ficar entre 0% e menos de 100%.');
+  exigir(l.descontoModo==null||['automatico','manual'].includes(l.descontoModo),'Modo de desconto do item inválido.');
+  // Versões anteriores guardavam o percentual da faixa em descontoPct no modo
+  // automático: esse valor é um cache legado, não um desconto manual adicional.
+  const descontoInformadoPct=l.descontoModo==='automatico'?0:(l.descontoPct??0),descontoAutomatico=fx.pct>0;
+  const descontoAplicadoPct=descontoAutomatico?fx.pct:descontoInformadoPct;
+  const origemDesconto=descontoAutomatico?'quantidade':descontoInformadoPct>0?'item':'nenhum';
+  const precoDigitado=l.preco??precoTabela;exigir(valido(precoDigitado)&&precoDigitado>=0,'Preço do item inválido.');
+  const praticado=dinheiro(dec(precoDigitado).mul(dec(1).minus(pct(descontoAplicadoPct))));
+  const brutoItem=dinheiro(dec(precoDigitado).mul(l.quantidade)),subtotal=dinheiro(dec(praticado).mul(l.quantidade));
+  return {fx,limiteDesconto:descontoAutomatico?regra.descMax:limiteManual,limiteDescontoManual:limiteManual,auto:dinheiro(dec(precoTabela).mul(dec(1).minus(pct(fx.pct)))),descontoAutomatico,origemDesconto,descontoInformadoPct,descontoAplicadoPct,precoDigitado,praticado,brutoItem,descontoItem:dinheiro(dec(brutoItem).minus(subtotal)),subtotal};
+ }
  function calcularPedido(pedido,produtos,regra,parametros,ano){
   exigir(valido(pedido.desconto)&&pedido.desconto>=0,'Desconto do pedido inválido.');
   for(const k of ['outrasDespesas','ipiInformado','icmsStInformado'])exigir(pedido[k]==null||(valido(pedido[k])&&pedido[k]>=0),'Valor inválido em '+k+'.');
@@ -105,17 +124,8 @@
    const p=l.tabelaId?{...original,tabelaVendaId:l.tabelaId}:original;
    exigir(Number.isInteger(l.quantidade)&&l.quantidade>0,'Quantidade deve ser inteira e positiva.');
    const par=parametros[ano];exigir(par,'Horizonte fiscal não encontrado.');
-   const r=calcularProduto(p,regra,par),fxBase=faixa(p,l.quantidade,regra),tabela=p.tabelasPreco?.find(t=>t.id===p.tabelaVendaId),limiteDesconto=tabela?Math.min(regra.descMax,tabela.desconto):regra.descMax,fx={...fxBase,pctOriginal:fxBase.pct,pct:Math.min(fxBase.pct,limiteDesconto)},auto=dinheiro(dec(r.preco).mul(dec(1).minus(pct(fx.pct))));
-   exigir(l.descontoPct==null||(valido(l.descontoPct)&&l.descontoPct>=0&&l.descontoPct<100),'Desconto do item deve ficar entre 0% e menos de 100%.');
-   exigir(l.descontoModo==null||['automatico','manual'].includes(l.descontoModo),'Modo de desconto do item inválido.');
-   const precoDigitado=l.preco??r.preco;exigir(valido(precoDigitado)&&precoDigitado>=0,'Preço do item inválido.');
-   // Modo explícito mantém a faixa dinâmica mesmo com preço bruto editado.
-   // Compatibilidade: itens antigos com preço/desconto manual conservam seu valor.
-   const descontoAutomatico=l.descontoModo==='automatico'||(l.descontoPct==null&&l.preco==null);
-   const descontoAplicadoPct=descontoAutomatico?fx.pct:(l.descontoPct??0);
-   const praticado=descontoAutomatico?dinheiro(dec(precoDigitado).mul(dec(1).minus(pct(fx.pct)))):l.descontoPct==null?l.preco:dinheiro(dec(precoDigitado).mul(dec(1).minus(pct(l.descontoPct))));
-   const brutoItem=dinheiro(dec(l.descontoPct==null&&l.preco==null?r.preco:precoDigitado).mul(l.quantidade)),subtotal=dinheiro(dec(praticado).mul(l.quantidade));
-   return {p,l,par,r,fx,limiteDesconto,auto,descontoAutomatico,descontoAplicadoPct,precoDigitado,praticado,brutoItem,descontoItem:dinheiro(dec(brutoItem).minus(subtotal)),subtotal};
+   const r=calcularProduto(p,regra,par),tabela=p.tabelasPreco?.find(t=>t.id===p.tabelaVendaId),limiteManual=tabela?Math.min(regra.descMax,tabela.desconto):regra.descMax;
+   return {p,l,par,r,...descontoPedido(p,l,regra,r.preco,limiteManual)};
   });
   const rateios=ratear(pedido.desconto,iniciais.map(x=>x.subtotal));
   const rateiosOutras=ratear(pedido.outrasDespesas||0,iniciais.map(x=>x.subtotal),false);
@@ -244,9 +254,8 @@
   const itens=pedido.itens.map(l=>{
    const p=produtos.find(p=>p.id===l.produtoId);exigir(p,'Produto não encontrado.');
    exigir(Number.isInteger(l.quantidade)&&l.quantidade>0,'Quantidade inválida.');
-   const fxBase=faixa(p,l.quantidade,regra),limiteDesconto=p.descontoTabela==null?regra.descMax:Math.min(regra.descMax,p.descontoTabela),fx={...fxBase,pctOriginal:fxBase.pct,pct:Math.min(fxBase.pct,limiteDesconto)},auto=dinheiro(dec(p.precoComercial).mul(dec(1).minus(pct(fx.pct))));
-   const praticado=l.preco==null?auto:l.preco;exigir(valido(praticado)&&praticado>=0,'Preço inválido.');
-   return {p,l,fx,limiteDesconto,auto,praticado,subtotal:dinheiro(dec(praticado).mul(l.quantidade))};
+   const limiteManual=p.descontoTabela==null?regra.descMax:Math.min(regra.descMax,p.descontoTabela);
+   return {p,l,...descontoPedido(p,l,regra,p.precoComercial,limiteManual)};
   });
   const rateios=ratear(pedido.desconto,itens.map(x=>x.subtotal));
   const finais=itens.map((x,k)=>{
@@ -318,6 +327,6 @@
   const margem=receita.gt(0)?num(lucro.div(receita).mul(100)):0,margemMin=receitaMin.gt(0)?num(lucroMin.div(receitaMin).mul(100)):0;
   return {...decomposicao,preco:consumidor,precoConsumidor:consumidor,precoReforma:num(receita),receita:num(receita),precoMinimoComercial:minimoComercial,sugerido,f:num(f),alvo:num(alvoPraticado.div(f)),antesDesconto:num(alvoPraticado.div(f)),custo:num(custo),cpv:num(cpv),frete:num(frete),pesoKg:num(peso),operacional:num(operacional),comissao:num(comissao),simples:t.regime==='simples'?num(preco.minus(receita)):0,lucro:num(lucro),mOper:margem,mVenda:preco.gt(0)?num(lucro.div(preco).mul(100)):0,markup:cpv.gt(0)?num(lucro.div(cpv).mul(100)):null,minimo:pisoTecnico,pisoTecnico,equilibrio,margemNoMinimo:margemMin,lucroNoMinimo:num(lucroMin),descontoMax:preco.gt(0)?Math.max(0,piso(um.minus(dec(pisoTecnico).div(preco)).mul(100))):0,descontoBase:0,descontoFinalEquivalente:0,status:cpv.lte(0)?'pendente':lucro.lt(0)?'prejuizo':margem+1e-9<regra.minMargem?'abaixo':'seguro',statusMinimo:cpv.lte(0)?'pendente':lucroMin.lt(0)?'prejuizo':margemMin+1e-9<regra.minMargem?'abaixo':'seguro',fiscalTabela:fiscal,tabelaId:t.id,percentuais:{desconto:t.desconto,margem:t.margem,operacional:t.operacional,comissao:t.comissao,simples:t.simples},denominador:num(denom),despesasFracao:num(despesa)};
  }
- const api={conciliarPrecoBase,memoriaTributos,prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
+ const api={descontoPedido,conciliarPrecoBase,memoriaTributos,prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};
  root.Motor=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

@@ -27,7 +27,7 @@
       "situacao": "OK"
     },
     {
-      "id": "UI17: editar quantidade conserva faixa automática e permite voltar do manual",
+      "id": "UI17: desconto por quantidade automático mesmo com item zero e limite manual zero",
       "situacao": "OK"
     },
     {
