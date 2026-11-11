@@ -13,7 +13,7 @@ MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária 
 
 A mesma aplicação contém as abas de precificação e pedido, sempre no modo Gestor.
 
-O HTML incorpora React, htm, Decimal.js, fontes IBM Plex e a tabela NCM. Os cálculos e a interface funcionam sem CDN ou conexão. Links legais e WhatsApp precisam de internet. Não há servidor, implantação remota ou envio automático de pedidos.
+A versão web carrega React, htm, Decimal.js, fontes IBM Plex e a tabela NCM de arquivos locais em docs/assets. Não depende de CDN. Os cálculos e a interface funcionam sem CDN ou conexão. Links legais e WhatsApp precisam de internet. Não há servidor, implantação remota ou envio automático de pedidos.
 
 ## Preservar o trabalho
 
@@ -130,3 +130,7 @@ Conferência visual em navegador não concluída: a execução local e o acesso 
 **A implementação precisa ser validada por contador ou advogado tributarista antes de orientar produção fiscal.**
 
 MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton
+
+## Empacotamento web
+
+A versão para Pages divide a base NCM em partes locais e usa scripts defer na ordem de dependências. A base e as regras são idênticas à versão 4.2 entregue em HTML único. Manter a pasta docs/assets junto de docs/index.html ao copiar ou publicar o site.

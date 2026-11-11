@@ -1,0 +1,70 @@
+{
+  "autoria": "MARCELO CLEITON",
+  "tipo": "Renderização React sem navegador; sem certificação visual ou WCAG",
+  "resultados": [
+    {
+      "id": "UI01: renderiza gestor e preço inicial 95,02",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI02: campo de preço recalcula prejuízo e correção",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI09: três blocos, duas grades e todas as colunas do ERP",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI10: alíquota muda sugerido sem substituir consumidor",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI11: seleção de produto altera a grade inferior",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI12: editar entrada recalcula custo e mantém consumidor",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI03: navega por todas as áreas sem erro de renderização",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI04: gerar pacote comercial sem CPV, frete de custo ou créditos",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI05: modo único Gestor e ações com nome acessível",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI06: tema e preview mobile alternam",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI07: remove item com confirmação e inicia pedido vazio",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI08: rejeita pacote sem custos e restaura backup interno em Gestor",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI13: UF por lista oficial e NCM existente, sem importação",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI14: inclusão em linha de produto, quantidade, preço e desconto",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI15: oito cartões, CBS/IBS separados e total sem reforma correto",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI16: prejuízo gera alerta e bloqueia impressão, com correção disponível",
+      "situacao": "OK"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "autoria": "MARCELO CLEITON",
+  "resultados": [
+    {
+      "id": "P01: total sem reforma remove somente CBS e IBS",
+      "situacao": "OK"
+    },
+    {
+      "id": "P02: desconto explícito substitui faixa e não é acumulado",
+      "situacao": "OK"
+    },
+    {
+      "id": "P03: outras despesas são rateadas e integram decomposição",
+      "situacao": "OK"
+    },
+    {
+      "id": "P04: IPI e ST informados não são receita de lucro",
+      "situacao": "OK"
+    },
+    {
+      "id": "P05: frete CIF é demonstrado, sem somar outra vez",
+      "situacao": "OK"
+    },
+    {
+      "id": "P06: tabela específica do item é respeitada",
+      "situacao": "OK"
+    },
+    {
+      "id": "P07: despesas cobradas não ocultam desconto fora da política",
+      "situacao": "OK"
+    },
+    {
+      "id": "P08: rejeita rateio sobre itens zerados e adicionais sem itens",
+      "situacao": "OK"
+    },
+    {
+      "id": "P09: campos inválidos não geram totais silenciosos",
+      "situacao": "OK"
+    },
+    {
+      "id": "P10: conserva equação comercial em 100 cenários",
+      "situacao": "OK"
+    },
+    {
+      "id": "P11: NCM verifica existência oficial, não apenas oito dígitos",
+      "situacao": "OK"
+    },
+    {
+      "id": "P12: 27 UFs, pacote com cadastro inválido rejeitado",
+      "situacao": "OK"
+    }
+  ]
+}

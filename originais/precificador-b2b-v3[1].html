@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<!-- Projeto criado por MARCELO CLEITON. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Precificador B2B — Reforma Tributária 2027 · Marcelo Cleiton</title>
+<meta name="author" content="Marcelo Cleiton">
+<meta name="description" content="Projeto criado por Marcelo Cleiton para analisar o impacto da Reforma Tributária nas aplicações da SN SISTEMA.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#fff;--layer:#f4f4f4;--layer2:#e0e0e0;--ink:#161616;--ink2:#525252;--line:#e0e0e0;--pri:#0f62fe;--priSoft:#d0e2ff;--onPri:#fff;--pos:#198038;--posBg:#defbe6;--err:#da1e28;--errBg:#fff1f1;--warn:#8e6a00;--warnBg:#fcf4d6;--warnLn:#f1c21b;--infoBg:#edf5ff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#161616;--layer:#262626;--layer2:#393939;--ink:#f4f4f4;--ink2:#c6c6c6;--line:#393939;--pri:#78a9ff;--priSoft:#001d6c;--onPri:#161616;--pos:#42be65;--posBg:#022d0d;--err:#fa4d56;--errBg:#2d0709;--warn:#f1c21b;--warnBg:#302400;--warnLn:#8e6a00;--infoBg:#001141}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#161616;--layer:#262626;--layer2:#393939;--ink:#f4f4f4;--ink2:#c6c6c6;--line:#393939;--pri:#78a9ff;--priSoft:#001d6c;--onPri:#161616;--pos:#42be65;--posBg:#022d0d;--err:#fa4d56;--errBg:#2d0709;--warn:#f1c21b;--warnBg:#302400;--warnLn:#8e6a00;--infoBg:#001141}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;overflow-x:clip}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+.card{background:var(--layer);border:1px solid var(--line);padding:16px}
+.ct{font-size:15px;font-weight:600;margin:0 0 10px}.sub{font-size:12px;color:var(--ink2)}.lbl{font-size:13px;font-weight:500}
+.inp{background:var(--bg);color:var(--ink);border:0;border-bottom:1px solid var(--ink2);padding:7px 8px;font:inherit;font-size:15px;width:100%;text-align:right}
+.inp.t{text-align:left}
+.inp:focus,.sel:focus,button:focus-visible,[tabindex]:focus-visible,summary:focus-visible{outline:2px solid var(--pri);outline-offset:1px}
+.sel{background:var(--bg);color:var(--ink);border:0;border-bottom:1px solid var(--ink2);padding:8px;font:inherit;font-size:14px;width:100%}
+input[type=range]{width:100%;accent-color:var(--pri)}
+.chip{border:1px solid var(--ink2);background:transparent;color:var(--ink);border-radius:16px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.chip.on{background:var(--pri);border-color:var(--pri);color:var(--onPri)}
+.btn{background:var(--pri);color:var(--onPri);border:0;padding:9px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.btn2{background:var(--layer2);color:var(--ink);border:0;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+.tab{background:transparent;border:0;border-bottom:3px solid transparent;color:var(--ink2);padding:11px 14px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--ink);border-bottom-color:var(--pri);font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:13px}th{text-align:left;background:var(--layer2);padding:8px 10px;font-weight:600}td{padding:8px 10px;border-bottom:1px solid var(--line)}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}tr.hl td{background:var(--priSoft);font-weight:600}tr.tot td{font-weight:700;border-top:2px solid var(--ink)}
+.posc{color:var(--pos)}.neg{color:var(--err)}
+.tip{position:relative;display:inline-flex;vertical-align:middle;margin-left:5px}
+.tip>b{width:17px;height:17px;border-radius:50%;background:var(--layer2);color:var(--ink2);font-size:11px;display:inline-flex;align-items:center;justify-content:center;cursor:help;font-weight:700}
+.tipc{display:none;position:absolute;z-index:60;top:23px;width:270px;max-width:78vw;background:#262626;color:#f4f4f4;padding:10px 12px;font-size:12px;font-weight:400;line-height:1.45;text-align:left;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.tip:hover .tipc,.tip:focus-within .tipc{display:block}
+.al{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-left:4px solid;margin-bottom:8px;font-size:13px}
+.al.e{background:var(--errBg);border-color:var(--err)}.al.a{background:var(--warnBg);border-color:var(--warnLn)}.al.i{background:var(--infoBg);border-color:var(--pri)}.al.ok{background:var(--posBg);border-color:var(--pos)}
+.ic{flex:none;width:20px;height:20px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.calc{background:var(--bg);border-left:3px solid var(--pri);padding:8px 10px;margin-top:10px;font-size:12px;white-space:pre-wrap;word-break:break-word;color:var(--ink2)}
+.pill{display:inline-block;padding:1px 9px;border-radius:12px;font-size:11px;font-weight:600}
+.pill.e{background:var(--err);color:#fff}.pill.a{background:var(--warnLn);color:#161616}.pill.ok{background:var(--pos);color:#fff}
+.prod{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit;margin-bottom:6px}
+.prod.on{border-color:var(--pri);box-shadow:inset 3px 0 0 var(--pri);background:var(--priSoft)}
+.dot{flex:none;width:10px;height:10px;border-radius:50%}
+</style>
+<script>tailwind.config={darkMode:'media'}</script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useMemo,useEffect}=React;const html=htm.bind(React.createElement);
+const brl=n=>(isFinite(n)?n:0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const pc=(n,d=1)=>(isFinite(n)?n:0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
+const r2=n=>Math.round(n*100)/100;
+const HOR={'2026':{icms:18,cbs:0.9,ibs:0.1,t:'2026 (teste)'},'2027':{icms:18,cbs:11.2,ibs:0.1,t:'2027 (CBS plena)'},'2029':{icms:16.2,cbs:8.8,ibs:1.77,t:'2029 (transição)'},'2033':{icms:0,cbs:8.8,ibs:17.7,t:'2033+ (pleno)'}};
+const REG={padrao:{n:'Regime geral (alíquota padrão)',f:1,is:0},reduzida:{n:'Alíquota reduzida em 60%',f:0.4,is:0},zero:{n:'Cesta básica (CBS e IBS zerados)',f:0,is:0},seletivo:{n:'Com Imposto Seletivo de 15%',f:1,is:15}};
+const scheme=(h,g)=>({icms:HOR[h].icms,cbs:r2(HOR[h].cbs*REG[g].f),ibs:r2(HOR[h].ibs*REG[g].f),is:REG[g].is});
+const GL={
+ cpv:['Custo de produção (CPV)','Quanto custa fabricar uma unidade ou caixa, já descontados os créditos de imposto da matéria-prima.',''],
+ frete:['Frete CIF','Frete pago pela indústria. Fica incluso no preço que o cliente paga.',''],
+ mp:['Matéria-prima bruta','Valor da nota de compra dos insumos. Só ela gera crédito de ICMS, CBS e IBS para a indústria. O produto acabado não gera crédito.','MP líquida = MP bruta ÷ (1 + ICMS÷(1−ICMS) + CBS + IBS)'],
+ meta:['Meta de margem','Quanto você quer ganhar. Conforme a regra geral, é medida sobre o custo (CPV) ou sobre o preço da operação.',''],
+ desc:['Desconto na nota','Redução dada ao cliente na nota. Diminui o preço sugerido e, por consequência, o lucro.',''],
+ sug:['Preço sugerido','Preço de venda que entrega exatamente a meta de margem, arredondado para cima ao centavo.','(CPV + margem + frete − desconto) × f'],
+ venda:['Preço de venda (tabela)','Valor que o cliente paga, com impostos e frete incluídos. É o número dito ao telefone.',''],
+ oper:['Preço da operação','Preço de venda sem ICMS, CBS e IBS. É a receita real da empresa.','preço de venda ÷ f'],
+ f:['Fator de impostos (f)','Número que converte o preço da operação em preço de venda com impostos.','1 + ICMS÷(1−ICMS) + CBS + IBS + IS'],
+ lucro:['Lucro por unidade','O que sobra depois de tirar impostos, custo e frete do preço de venda.','preço da operação − CPV − frete'],
+ mPreco:['Margem sobre o preço de venda','Quanto do valor pago pelo cliente vira lucro. É a menor das três margens, porque o denominador inclui impostos.','lucro ÷ preço de venda'],
+ mLiq:['Margem sobre o preço da operação','Quanto da receita líquida vira lucro. É a margem usada nos alertas e na margem mínima.','lucro ÷ preço da operação'],
+ mk:['Markup sobre o custo','Quanto o lucro representa em relação ao CPV. Útil para comparar com a meta quando ela é sobre o custo.','lucro ÷ CPV'],
+ eq:['Ponto de equilíbrio','Preço em que o lucro é zero. Abaixo dele você perde dinheiro em cada venda.','(CPV + frete) × f'],
+ mmin:['Margem mínima','Menor margem sobre o preço da operação que a empresa aceita. Abaixo dela o simulador alerta.',''],
+ minP:['Preço mínimo','Menor preço que ainda respeita a margem mínima.','(CPV + frete) ÷ (1 − margem mínima) × f'],
+ icms:['ICMS (por dentro)','Imposto estadual já embutido no preço. Durante a transição continua existindo.','operação ÷ (1 − alíq.) × alíq.'],
+ cbs:['CBS (dedução)','Contribuição federal. Não é somada ao preço: sai do preço de venda como dedução até chegar ao preço da operação.','operação × alíq.'],
+ ibs:['IBS (dedução)','Imposto estadual e municipal do novo sistema. Em 2027 está em fase de teste.','operação × alíq.'],
+ is:['Imposto Seletivo','Incide sobre bens prejudiciais à saúde. Em pães e congelados comuns é zero.','operação × alíq.'],
+ split:['Split payment','Na liquidação do boleto, o banco separa CBS e IBS e envia ao governo. A indústria recebe o restante.','CBS + IBS (+ IS)'],
+ cred:['Crédito do cliente','Impostos da nota que o cliente PJ recupera. Depende do regime tributário dele.','(ICMS + CBS + IBS) × % aproveitado'],
+ custoReal:['Custo real do cliente','Quanto a compra custa ao cliente depois de recuperar os créditos.','valor da nota − créditos'],
+ faixa:['Desconto por quantidade','Percentual que muda conforme a quantidade pedida do mesmo produto. Fica dentro do intervalo permitido.','preço × (1 − desconto da faixa)'],
+ dmax:['Desconto máximo seguro','Maior desconto que mantém a margem mínima neste preço.','1 − preço mínimo ÷ preço de venda'],
+ hor:['Horizonte fiscal','Ano da transição da reforma. Cada ano tem alíquotas diferentes de ICMS, CBS e IBS.',''],
+ reg:['Regime do produto','Define se CBS e IBS têm alíquota cheia, reduzida ou zero. Confirme o enquadramento com a contabilidade.',''],
+ basis:['Base da meta','Define se a meta de margem é aplicada sobre o custo (CPV) ou sobre o preço da operação.','']};
+function Tip({k,r}){const g=GL[k];if(!g)return null;return html`<span class="tip"><b tabindex="0" role="button" aria-label=${'Ajuda: '+g[0]}>?</b><span class="tipc" role="tooltip" style=${r?{right:0}:{left:0}}><b style=${{display:'block',marginBottom:3,background:'none',width:'auto',height:'auto',color:'#fff',cursor:'default',fontSize:12,justifyContent:'flex-start'}}>${g[0]}</b>${g[1]}${g[2]&&html`<span class="mono" style=${{display:'block',marginTop:6,color:'#a6c8ff'}}>${g[2]}</span>`}</span></span>`}
+
+function Num({v,set,min=0,max=1e6,step=1}){
+ const [s,setS]=useState(String(v));
+ useEffect(()=>{if(parseFloat(s)!==v)setS(String(v))},[v]);
+ return html`<input class="inp mono" type="number" inputmode="decimal" step=${step} min=${min} max=${max} value=${s} onInput=${e=>{setS(e.target.value);const n=parseFloat(e.target.value);if(!isNaN(n))set(Math.min(max,Math.max(min,n)))}} onBlur=${()=>setS(String(v))}/>`;
+}
+function Field({label,tip,v,set,min,max,step,pre,suf,hint,slider}){
+ return html`<div class="mb-3"><div class="flex items-center justify-between gap-3"><label class="lbl">${label}${tip&&html`<${Tip} k=${tip}/>`}</label>
+  <span class="flex items-center gap-1" style=${{width:130}}><span class="sub">${pre}</span><${Num} v=${v} set=${set} min=${min} max=${max} step=${step}/><span class="sub" style=${{width:16}}>${suf}</span></span></div>
+  ${slider&&html`<input type="range" min=${min} max=${max} step=${step} value=${v} onInput=${e=>set(parseFloat(e.target.value))} aria-label=${label}/>`}
+  ${hint&&html`<div class="sub">${hint}</div>`}</div>`;
+}
+function calc(pr,S,over){
+ const rt=S.rt,a=rt.icms/100,c=rt.cbs/100,i=rt.ibs/100,s=rt.is/100,ia=a/(1-a),f=1+ia+c+i+s;
+ const cpv=pr.cpv,fr=pr.fr,desc=pr.desc||0,m=pr.m/100,custoT=cpv+fr;
+ const margemRS=S.basis==='cpv'?cpv*m:null;
+ const baseIdeal=Math.max(0,S.basis==='cpv'?cpv+cpv*m+fr-desc:(m<1?(cpv+fr-desc)/(1-m):0));
+ const sug=r2(Math.ceil(baseIdeal*f*100-1e-9)/100),total=over!=null?over:sug;
+ const base=total/f,icms=base/(1-a)*a,cbs=base*c,ibs=base*i,is=base*s,lucro=base-custoT;
+ const mpb=pr.mp/(1+ia+c+i),mpIcms=mpb/(1-a)*a,mpCbs=mpb*c,mpIbs=mpb*i;
+ return {a,c,i,s,ia,f,margemRS,baseIdeal,sug,total,base,icms,cbs,ibs,is,lucro,custoT,eq:custoT*f,minP:r2(Math.ceil(custoT/(1-S.mmin/100)*f*100-1e-9)/100),
+  mpb,mpIcms,mpCbs,mpIbs,mpCred:mpIcms+mpCbs+mpIbs,mPreco:total?lucro/total*100:0,mLiq:base?lucro/base*100:0,mk:cpv?lucro/cpv*100:0,
+  carga:total?(total-base)/total*100:0,cred:icms+cbs+ibs,split:cbs+ibs+is};
+}
+const P0=[['Pão Francês Congelado','cx 5kg',50,10,20,30],['Pão de Queijo Congelado','cx 10kg',118,14,25,70],['Massa Folhada Pré-assada','cx 4kg',72,12,22,40],['Pão de Forma Tradicional','cx 12un',38,6,18,20],['Bolo Congelado Fatiado','cx 3kg',64,9,28,35]].map(([n,u,cpv,fr,m,mp],k)=>({id:'p'+k,n,u,cpv,fr,m,mp,desc:0,price:null}));
+const DEF={prods:P0,sel:'p0',hor:'2027',reg:'padrao',rt:scheme('2027','padrao'),basis:'cpv',mmin:8,lim:{min:0,max:10},faixas:[{de:1,pct:0},{de:10,pct:3},{de:20,pct:5},{de:50,pct:8}],det:true};
+const KEY='precificador-b2b-v3';
+const load=()=>{try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.prods&&s.prods.length&&s.rt)return {...DEF,...s}}catch(e){}return DEF};
+
+function Gauge({v,lo,meta}){
+ const max=Math.max(40,meta*1.5,v*1.1,lo*2),p=x=>Math.min(100,Math.max(0,x/max*100));
+ return html`<div style=${{position:'relative',padding:'26px 0 22px'}}>
+  <div style=${{display:'flex',height:16}}><div style=${{width:p(lo)+'%',background:'var(--err)'}}></div><div style=${{width:Math.max(0,p(meta)-p(lo))+'%',background:'var(--warnLn)'}}></div><div style=${{flex:1,background:'var(--pos)'}}></div></div>
+  <div style=${{position:'absolute',left:p(v)+'%',top:0,transform:'translateX(-50%)',textAlign:'center',lineHeight:1}}><div class="mono" style=${{fontSize:12,fontWeight:700}}>${pc(v,1)}</div><div style=${{fontSize:12}}>▼</div></div>
+  <div class="sub" style=${{position:'absolute',left:p(lo)+'%',top:44,transform:'translateX(-50%)',whiteSpace:'nowrap'}}>mínimo ${pc(lo,0)}</div>
+  <div class="sub" style=${{position:'absolute',left:p(meta)+'%',top:44,transform:'translateX(-50%)',whiteSpace:'nowrap'}}>meta ${pc(meta,0)}</div></div>`;
+}
+const Kpi=({t,tip,v,s,tone})=>html`<div class="card" style=${{borderTop:'3px solid '+({e:'var(--err)',a:'var(--warnLn)',ok:'var(--pos)'}[tone]||'var(--pri)')}}><div class="sub">${t}<${Tip} k=${tip} r=${true}/></div><div class="mono" style=${{fontSize:22,fontWeight:600}}>${v}</div><div class="sub">${s}</div></div>`;
+
+function App(){
+ const I=useMemo(load,[]);
+ const [prods,setProds]=useState(I.prods),[sel,setSel]=useState(I.sel),[hor,setHor]=useState(I.hor),[reg,setReg]=useState(I.reg),[rt,setRt]=useState(I.rt);
+ const [basis,setBasis]=useState(I.basis),[mmin,setMmin]=useState(I.mmin),[lim,setLim]=useState(I.lim),[faixas,setFaixas]=useState(I.faixas),[det,setDet]=useState(I.det);
+ const [tab,setTab]=useState('preco'),[adv,setAdv]=useState(false),[conf,setConf]=useState(false),[msg,setMsg]=useState(''),[theme,setTheme]=useState(null);
+ const [cred,setCred]=useState(100),[mk,setMk]=useState(35),[vol,setVol]=useState(600),[share,setShare]=useState(100);
+ useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify({prods,sel,hor,reg,rt,basis,mmin,lim,faixas,det}))}catch(e){}},[prods,sel,hor,reg,rt,basis,mmin,lim,faixas,det]);
+
+ const S={rt,basis,mmin};
+ const pr=prods.find(x=>x.id===sel)||prods[0];
+ const upd=(k,v)=>setProds(ps=>ps.map(x=>x.id===pr.id?{...x,[k]:v}:x));
+ const r=calc(pr,S,pr.price),rs=calc(pr,S,null),metaL=rs.mLiq;
+ const fx=faixas.map((x,k,a)=>({de:x.de,pct:Math.min(lim.max,Math.max(lim.min,x.pct||0)),ate:k<a.length-1?a[k+1].de-1:null}));
+ const tiers=fx.map(x=>{const pu=r2(r.total*(1-x.pct/100));return {...x,pu,...calc(pr,S,pu)}});
+ const maxPct=r.total?Math.max(0,(1-r.minP/r.total)*100):0;
+ const fS=r.f.toFixed(4),pS=(r.total||0);
+
+ const stat=(p)=>{const q=calc(p,S,p.price),b=calc(p,S,null);return q.lucro<=0||q.mLiq<S.mmin?'e':q.total<b.sug-0.005?'a':'ok'};
+ const col={e:'var(--err)',a:'var(--warnLn)',ok:'var(--pos)'};
+ const A=[];const add=(s,t,fix)=>A.push({s,t,fix});
+ if(pr.cpv<=0)add('e','Informe o custo de produção (CPV). Sem ele não é possível calcular preço nem margem.');
+ else{
+  if(r.lucro<=0)add('e','Com este preço você vende abaixo do custo e perde '+brl(-r.lucro)+' por unidade. O ponto de equilíbrio é '+brl(r.eq)+'.',{l:'Usar o preço mínimo '+brl(r.minP),f:()=>upd('price',r.minP)});
+  else if(r.mLiq<mmin)add('e','A margem de '+pc(r.mLiq,1)+' está abaixo do mínimo da empresa ('+pc(mmin,1)+'). Suba o preço para pelo menos '+brl(r.minP)+'.',{l:'Usar o preço mínimo '+brl(r.minP),f:()=>upd('price',r.minP)});
+  else if(r.total<r.sug-0.005)add('a','O preço está '+brl(r.sug-r.total)+' abaixo do sugerido, então a margem ('+pc(r.mLiq,1)+') fica abaixo da meta ('+pc(metaL,1)+').',{l:'Voltar ao preço sugerido',f:()=>upd('price',null)});
+  if(r.sug>0&&r.total>r.sug*1.5)add('a','O preço está '+pc((r.total/r.sug-1)*100,0)+' acima do sugerido. Preço muito alto pode afastar o cliente.',{l:'Voltar ao preço sugerido',f:()=>upd('price',null)});
+  const bad=tiers.filter(x=>x.mLiq<mmin-0.0001);
+  if(bad.length&&r.lucro>0)add('a','As faixas a partir de '+bad.map(x=>x.de+' cx').join(', ')+' ficam abaixo da margem mínima. O desconto máximo seguro neste preço é '+pc(maxPct,1)+'.',{l:'Limitar descontos a '+pc(Math.floor(maxPct*10)/10,1),f:()=>setFaixas(fs=>fs.map(x=>({...x,pct:Math.min(x.pct,Math.floor(maxPct*10)/10)})))});
+  if((pr.desc||0)>0)add('i','O desconto na nota de '+brl(pr.desc)+' reduz o preço sugerido e o lucro. Confirme se ele vale para todas as vendas.');
+  if(r.mpb>pr.cpv)add('a','A matéria-prima líquida ('+brl(r.mpb)+') é maior que o CPV. Confira os dois valores.');
+ }
+ if(basis==='liq'&&pr.m>=100)add('e','Meta de 100% ou mais sobre o preço da operação é impossível. Reduza a meta.');
+ if(lim.min>lim.max)add('e','O desconto mínimo permitido é maior que o máximo. Corrija o intervalo na aba de desconto por quantidade.');
+ if(new Set(faixas.map(x=>x.de)).size<faixas.length)add('a','Existem faixas de desconto com a mesma quantidade inicial. Só a última será considerada.');
+ const std=scheme(hor,reg);
+ if(['icms','cbs','ibs','is'].some(k=>Math.abs(rt[k]-std[k])>1e-4))add('i','As alíquotas foram alteradas manualmente e diferem das oficiais do regime escolhido.',{l:'Restaurar alíquotas',f:()=>setRt(std)});
+ const worst=A.some(x=>x.s==='e')?'e':A.some(x=>x.s==='a')?'a':'ok';
+
+ const Dl=(t,ls)=>det&&html`<div class="calc mono"><b>${t}</b>${ls.map((l,k)=>html`<div key=${k}>${l}</div>`)}</div>`;
+ const exportCode=()=>{const items=prods.map(p=>{const q=calc(p,S,p.price);return {n:p.n,u:p.u,c:p.cpv,f:p.fr,t:r2(q.total),q:[...faixas].sort((a,b)=>a.de-b.de).map(x=>[x.de,x.pct])}});return btoa(unescape(encodeURIComponent(JSON.stringify({v:2,r:rt,i:items,l:[lim.min,lim.max]}))))};
+ const copy=async()=>{const c=exportCode();try{await navigator.clipboard.writeText(c);setMsg('Código copiado. Cole no simulador de venda.')}catch(e){setMsg('Não foi possível copiar. Selecione o código na caixa abaixo.')}};
+ const flip=()=>{const d=(theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'light':'dark';setTheme(d);document.documentElement.setAttribute('data-theme',d)};
+ const novo=()=>{const id='p'+Date.now();setProds(ps=>[...ps,{id,n:'Novo produto',u:'cx',cpv:0,fr:0,m:20,mp:0,desc:0,price:null}]);setSel(id);setTab('preco')};
+ const remover=()=>{if(prods.length<2)return;const rest=prods.filter(x=>x.id!==pr.id);setProds(rest);setSel(rest[0].id);setConf(false)};
+ const restaurar=()=>{setProds(DEF.prods);setSel('p0');setHor('2027');setReg('padrao');setRt(DEF.rt);setBasis('cpv');setMmin(8);setLim(DEF.lim);setFaixas(DEF.faixas)};
+ const applySch=(h,g)=>{setHor(h);setReg(g);setRt(scheme(h,g))};
+ const AlertList=html`<div>${A.length===0?html`<div class="al ok"><span class="ic" style=${{background:'var(--pos)'}}>✓</span><div>Nenhum problema encontrado. Preço dentro da meta e da margem mínima.</div></div>`:
+  A.map((x,k)=>html`<div key=${k} class=${'al '+x.s} role=${x.s==='e'?'alert':'status'}><span class="ic" style=${{background:x.s==='e'?'var(--err)':x.s==='a'?'#8e6a00':'var(--pri)'}}>${x.s==='e'?'✕':x.s==='a'?'!':'i'}</span><div class="flex-1">${x.t}</div>${x.fix&&html`<button class="btn" onClick=${x.fix.f}>${x.fix.l}</button>`}</div>`)}</div>`;
+
+ const TABS=[['preco','1. Preço e margens'],['imp','2. Impostos e créditos'],['qtd','3. Desconto por quantidade'],['cli','4. Cliente e split'],['sens','5. E se eu mudar o preço?'],['gl','6. Glossário e dados']];
+ const sl=Math.round(r.eq*0.8*100)/100,sh=Math.max(r.sug*1.8,r.eq*1.5),mt=r.mLiq<mmin?'e':r.mLiq<metaL-0.05?'a':'ok';
+ const bar=[['Custo (CPV)',pr.cpv,'var(--ink2)'],['Frete CIF',pr.fr,'#005d5d'],['Impostos',r.total-r.base,'#9f1853'],['Lucro',Math.max(0,r.lucro),'var(--pos)']];
+
+ const Preco=html`<div>
+  <div class="mb-3">${AlertList}</div>
+  <div class="card mb-4">
+   <div class="grid gap-5 md:grid-cols-[1fr_1fr]">
+    <div><div class="lbl">Preço de venda por ${pr.u||'unidade'} (com impostos)<${Tip} k="venda"/></div>
+     <div class="flex items-center gap-2 mt-1"><span style=${{fontSize:22}}>R$</span><div style=${{width:170,fontSize:26}}><${Num} v=${r2(r.total)} set=${v=>upd('price',v)} min=${0} max=${5000} step=${0.1}/></div></div>
+     <div class="sub mt-1">${pr.price==null?'Usando o preço sugerido.':(r.total>=r.sug?'+':'−')+' '+brl(Math.abs(r.total-r.sug))+' ('+pc((r.total/(r.sug||1)-1)*100,1)+') em relação ao sugerido.'}</div></div>
+    <div><div class="lbl">Atalhos de preço</div>
+     <div class="flex flex-wrap gap-2 mt-2"><button class="chip" onClick=${()=>upd('price',null)}>Sugerido ${brl(r.sug)}</button><button class="chip" onClick=${()=>upd('price',r.minP)}>Mínimo ${brl(r.minP)}</button>${[0.99,0.9,0.5].map(c=>html`<button key=${c} class="chip" onClick=${()=>{let x=Math.floor(r.sug)+c;if(x<r.sug-0.001)x+=1;upd('price',r2(x))}}>Fechar em ,${String(Math.round(c*100)).padStart(2,'0')}</button>`)}</div></div></div>
+   <input type="range" class="mt-3" min=${sl} max=${r2(sh)} step="0.1" value=${Math.min(sh,Math.max(sl,r.total))} onInput=${e=>upd('price',parseFloat(e.target.value))} aria-label="Ajustar preço de venda"/>
+   <div class="flex justify-between sub"><span>${brl(sl)}</span><span>${brl(sh)}</span></div>
+  </div>
+  <div class="grid gap-3 grid-cols-2 xl:grid-cols-4 mb-4">
+   <${Kpi} t="Lucro por unidade" tip="lucro" v=${brl(r.lucro)} s=${'Impostos: '+brl(r.total-r.base)} tone=${r.lucro<=0?'e':mt}/>
+   <${Kpi} t="Margem sobre o preço de venda" tip="mPreco" v=${pc(r.mPreco,1)} s="lucro ÷ valor pago pelo cliente" tone=${mt}/>
+   <${Kpi} t="Margem sobre o preço da operação" tip="mLiq" v=${pc(r.mLiq,1)} s=${'mínimo '+pc(mmin,1)+' · meta '+pc(metaL,1)} tone=${mt}/>
+   <${Kpi} t="Markup sobre o custo" tip="mk" v=${pc(r.mk,1)} s="lucro ÷ CPV" tone=${mt}/>
+  </div>
+  <div class="grid gap-4 lg:grid-cols-2 mb-4">
+   <div class="card"><h3 class="ct">Saúde da margem<${Tip} k="mLiq"/></h3><${Gauge} v=${Math.max(0,r.mLiq)} lo=${mmin} meta=${metaL}/>
+    <p class="sub" style=${{marginBottom:0}}>Vermelho: abaixo do mínimo. Amarelo: abaixo da meta. Verde: dentro da meta.</p></div>
+   <div class="card"><h3 class="ct">Para onde vai cada R$ 100,00 do preço</h3>
+    <div style=${{display:'flex',height:22}}>${bar.map(([t,v,c])=>html`<div key=${t} title=${t} style=${{width:(r.total?v/r.total*100:0)+'%',background:c}}></div>`)}</div>
+    <div class="grid grid-cols-2 gap-1 mt-2 text-sm">${bar.map(([t,v,c])=>html`<div key=${t}><span style=${{color:c}}>■</span> ${t}: <b class="mono">${brl(r.total?v/r.total*100:0)}</b></div>`)}</div></div>
+  </div>
+  <div class="card"><h3 class="ct">Dados do produto</h3>
+   <div class="grid gap-x-6 md:grid-cols-2">
+    <div class="mb-3"><label class="lbl">Nome</label><input class="inp t" value=${pr.n} onInput=${e=>upd('n',e.target.value)}/></div>
+    <div class="mb-3"><label class="lbl">Unidade de venda</label><input class="inp t" value=${pr.u} onInput=${e=>upd('u',e.target.value)}/></div>
+    <${Field} label="Custo de produção (CPV)" tip="cpv" v=${pr.cpv} set=${v=>upd('cpv',v)} min=${0} max=${1000} step=${0.5} pre="R$" suf=""/>
+    <${Field} label="Frete CIF por unidade" tip="frete" v=${pr.fr} set=${v=>upd('fr',v)} min=${0} max=${200} step=${0.5} pre="R$" suf=""/>
+    <${Field} label="Matéria-prima bruta (NF)" tip="mp" v=${pr.mp} set=${v=>upd('mp',v)} min=${0} max=${1000} step=${0.5} pre="R$" suf=""/>
+    <${Field} label=${'Meta de margem sobre '+(basis==='cpv'?'o custo':'a operação')} tip="meta" v=${pr.m} set=${v=>upd('m',v)} min=${0} max=${150} step=${0.5} pre="" suf="%" slider=${true}/>
+    <${Field} label="Desconto na nota" tip="desc" v=${pr.desc||0} set=${v=>upd('desc',v)} min=${0} max=${200} step=${0.5} pre="R$" suf=""/>
+   </div>
+   <div class="mt-2">${conf?html`<span class="sub">Remover ${pr.n}? </span><button class="btn" style=${{background:'var(--err)',color:'#fff'}} onClick=${remover}>Confirmar remoção</button> <button class="btn2" onClick=${()=>setConf(false)}>Cancelar</button>`:html`<button class="btn2" disabled=${prods.length<2} onClick=${()=>setConf(true)}>Remover produto</button>`}</div>
+  </div>
+  ${Dl('Detalhamento do cálculo',[
+   basis==='cpv'?'Margem em R$ = CPV × meta = '+brl(pr.cpv)+' × '+pc(pr.m,1)+' = '+brl(r.margemRS):'Meta sobre a operação: base = (CPV + frete − desconto) ÷ (1 − meta)',
+   'Base ideal = '+(basis==='cpv'?'CPV + margem + frete − desconto = '+brl(pr.cpv)+' + '+brl(r.margemRS)+' + '+brl(pr.fr)+' − '+brl(pr.desc||0):'('+brl(pr.cpv)+' + '+brl(pr.fr)+' − '+brl(pr.desc||0)+') ÷ (1 − '+pc(pr.m,1)+')')+' = '+brl(r.baseIdeal),
+   'Fator f = 1 + ICMS ÷ (1 − ICMS) + CBS + IBS + IS = 1 + '+r.ia.toFixed(4)+' + '+r.c.toFixed(4)+' + '+r.i.toFixed(4)+' + '+r.s.toFixed(4)+' = '+fS,
+   'Preço sugerido = base ideal × f = '+brl(r.baseIdeal)+' × '+fS+' = '+brl(r.sug)+' (arredondado para cima ao centavo)',
+   'Preço da operação = preço de venda ÷ f = '+brl(r.total)+' ÷ '+fS+' = '+brl(r.base),
+   'Lucro = operação − CPV − frete = '+brl(r.base)+' − '+brl(pr.cpv)+' − '+brl(pr.fr)+' = '+brl(r.lucro),
+   'Margem s/ preço de venda = lucro ÷ preço = '+brl(r.lucro)+' ÷ '+brl(r.total)+' = '+pc(r.mPreco,2),
+   'Margem s/ preço da operação = lucro ÷ operação = '+brl(r.lucro)+' ÷ '+brl(r.base)+' = '+pc(r.mLiq,2),
+   'Markup s/ CPV = lucro ÷ CPV = '+brl(r.lucro)+' ÷ '+brl(pr.cpv)+' = '+pc(r.mk,2),
+   'Ponto de equilíbrio = (CPV + frete) × f = '+brl(r.custoT)+' × '+fS+' = '+brl(r.eq),
+   'Preço mínimo = (CPV + frete) ÷ (1 − margem mínima) × f = '+brl(r.custoT)+' ÷ (1 − '+pc(mmin,1)+') × '+fS+' = '+brl(r.minP)])}
+ </div>`;
+
+ const Imp=html`<div class="grid gap-4 xl:grid-cols-2"><div>
+  <div class="card"><h3 class="ct">Do preço de venda ao lucro</h3><table><tbody>
+   <tr class="hl"><td>Preço de venda (com impostos)<${Tip} k="venda"/></td><td class="r">${brl(r.total)}</td></tr>
+   <tr><td>(−) ICMS ${pc(rt.icms)}<${Tip} k="icms"/></td><td class="r neg">− ${brl(r.icms)}</td></tr>
+   <tr><td>(−) CBS ${pc(rt.cbs)}<${Tip} k="cbs"/></td><td class="r neg">− ${brl(r.cbs)}</td></tr>
+   <tr><td>(−) IBS ${pc(rt.ibs)}<${Tip} k="ibs"/></td><td class="r neg">− ${brl(r.ibs)}</td></tr>
+   ${r.is>0&&html`<tr><td>(−) Imposto Seletivo ${pc(rt.is)}<${Tip} k="is"/></td><td class="r neg">− ${brl(r.is)}</td></tr>`}
+   <tr class="hl"><td>Preço da operação<${Tip} k="oper"/></td><td class="r">${brl(r.base)}</td></tr>
+   <tr><td>(−) Custo de produção<${Tip} k="cpv"/></td><td class="r">− ${brl(pr.cpv)}</td></tr>
+   <tr><td>(−) Frete CIF<${Tip} k="frete"/></td><td class="r">− ${brl(pr.fr)}</td></tr>
+   <tr class="tot"><td>Lucro por unidade<${Tip} k="lucro"/></td><td class=${'r '+(r.lucro>0?'posc':'neg')}>${brl(r.lucro)}</td></tr></tbody></table>
+   <p class="sub mt-2" style=${{marginBottom:0}}>CBS e IBS não são somados ao preço. Saem do preço de venda como dedução até chegar ao preço da operação.</p></div>
+  ${Dl('Detalhamento do cálculo',['Fator f = '+fS,'Preço da operação = '+brl(r.total)+' ÷ '+fS+' = '+brl(r.base),'ICMS = operação ÷ (1 − '+rt.icms+'%) × '+rt.icms+'% = '+brl(r.icms),'CBS = operação × '+rt.cbs+'% = '+brl(r.cbs),'IBS = operação × '+rt.ibs+'% = '+brl(r.ibs),'Carga total = (preço − operação) ÷ preço = '+pc(r.carga,2)])}</div>
+  <div>
+  <div class="card"><h3 class="ct">Crédito só na matéria-prima<${Tip} k="mp"/></h3>
+   <p class="sub">A indústria apropria crédito apenas sobre insumos. A venda do produto acabado gera débito, nunca crédito.</p>
+   <table><thead><tr><th>Tributo</th><th class="r">Débito (venda)</th><th class="r">Crédito (MP)</th><th class="r">A recolher</th></tr></thead><tbody>
+   ${[['ICMS',r.icms,r.mpIcms],['CBS',r.cbs,r.mpCbs],['IBS',r.ibs,r.mpIbs],['Seletivo',r.is,0]].map(([t,d,c])=>html`<tr key=${t}><td>${t}</td><td class="r">${brl(d)}</td><td class="r posc">− ${brl(c)}</td><td class="r">${brl(d-c)}</td></tr>`)}
+   <tr class="tot"><td>Total</td><td class="r">${brl(r.total-r.base)}</td><td class="r posc">− ${brl(r.mpCred)}</td><td class="r">${brl(r.total-r.base-r.mpCred)}</td></tr></tbody></table>
+   <p class="sub mt-2" style=${{marginBottom:0}}>Carga líquida efetiva: <b>${pc(r.total?(r.total-r.base-r.mpCred)/r.total*100:0,1)}</b> do preço de venda.</p></div>
+  ${Dl('Detalhamento do crédito',['MP líquida = MP bruta ÷ (1 + ICMS÷(1−ICMS) + CBS + IBS) = '+brl(pr.mp)+' ÷ '+(1+r.ia+r.c+r.i).toFixed(4)+' = '+brl(r.mpb),'Crédito ICMS = MP líquida ÷ (1 − '+rt.icms+'%) × '+rt.icms+'% = '+brl(r.mpIcms),'Crédito CBS = MP líquida × '+rt.cbs+'% = '+brl(r.mpCbs),'Crédito IBS = MP líquida × '+rt.ibs+'% = '+brl(r.mpIbs),'A recolher = débito − crédito = '+brl(r.total-r.base)+' − '+brl(r.mpCred)+' = '+brl(r.total-r.base-r.mpCred)])}</div></div>`;
+
+ const Qtd=html`<div>
+  <div class="mb-3">${AlertList}</div>
+  <div class="card mb-4"><h3 class="ct">Regra de desconto por quantidade<${Tip} k="faixa"/></h3>
+   <p class="sub">O mesmo produto recebe percentuais diferentes conforme a quantidade pedida. Todo percentual fica dentro do intervalo permitido e é conferido contra a margem mínima.</p>
+   <div class="grid gap-x-6 sm:grid-cols-2 mt-2"><${Field} label="Desconto mínimo permitido" v=${lim.min} set=${v=>setLim({...lim,min:v})} min=${0} max=${50} step=${0.5} pre="" suf="%"/><${Field} label="Desconto máximo permitido" v=${lim.max} set=${v=>setLim({...lim,max:v})} min=${0} max=${50} step=${0.5} pre="" suf="%"/></div>
+   <p class="sub" style=${{marginBottom:0}}>Produto: <b>${pr.n}</b> · preço ${brl(r.total)} · desconto máximo seguro: <b>${pc(maxPct,2)}</b><${Tip} k="dmax"/></p></div>
+  <div class="card overflow-x-auto"><table style=${{minWidth:860}}><thead><tr><th>Faixa (${pr.u||'un'})</th><th class="r">A partir de</th><th class="r">Desconto</th><th class="r">Preço unitário</th><th class="r">Lucro unit.</th><th class="r">Margem s/ venda</th><th class="r">Margem s/ operação</th><th>Situação</th><th></th></tr></thead><tbody>
+   ${tiers.map((x,k)=>{const st=x.lucro<=0?'e':x.mLiq<mmin-1e-4?'a':'ok';return html`<tr key=${k}><td>${x.de}${x.ate==null?' em diante':' a '+x.ate}</td>
+    <td class="r"><div style=${{width:80,marginLeft:'auto'}}><${Num} v=${faixas[k].de} set=${v=>setFaixas(fs=>fs.map((y,j)=>j===k?{...y,de:Math.max(1,Math.round(v))}:y))} min=${1} max=${100000} step=${1}/></div></td>
+    <td class="r"><div style=${{width:80,marginLeft:'auto'}}><${Num} v=${faixas[k].pct} set=${v=>setFaixas(fs=>fs.map((y,j)=>j===k?{...y,pct:v}:y))} min=${0} max=${90} step=${0.5}/></div>${faixas[k].pct!==x.pct&&html`<span class="sub neg">limitado a ${pc(x.pct,1)}</span>`}</td>
+    <td class="r">${brl(x.pu)}</td><td class=${'r '+(x.lucro>0?'posc':'neg')}>${brl(x.lucro)}</td><td class="r">${pc(x.mPreco,1)}</td><td class="r">${pc(x.mLiq,1)}</td>
+    <td><span class=${'pill '+st}>${st==='ok'?'Seguro':st==='a'?'Abaixo do mínimo':'Prejuízo'}</span></td>
+    <td class="r"><button class="btn2" onClick=${()=>setFaixas(fs=>fs.filter((_,j)=>j!==k))}>Remover</button></td></tr>`})}
+  </tbody></table><div class="flex flex-wrap gap-2 mt-3"><button class="btn" onClick=${()=>setFaixas(fs=>[...fs,{de:(fs.length?Math.max(...fs.map(y=>y.de)):0)+10,pct:lim.max}])}>Adicionar faixa</button><button class="btn2" onClick=${()=>setFaixas(fs=>[...fs].sort((a,b)=>a.de-b.de))}>Ordenar faixas</button></div></div>
+  ${Dl('Detalhamento por faixa',['Preço mínimo = '+brl(r.minP)+' · Desconto máximo seguro = 1 − '+brl(r.minP)+' ÷ '+brl(r.total)+' = '+pc(maxPct,2),...tiers.flatMap(x=>['Faixa '+x.de+(x.ate==null?'+':'–'+x.ate)+': preço = '+brl(r.total)+' × (1 − '+pc(x.pct,1)+') = '+brl(x.pu),'   operação = '+brl(x.pu)+' ÷ '+fS+' = '+brl(x.base)+' · lucro = '+brl(x.base)+' − '+brl(pr.cpv)+' − '+brl(pr.fr)+' = '+brl(x.lucro),'   margem s/ venda = '+pc(x.mPreco,2)+' · s/ operação = '+pc(x.mLiq,2)])])}
+ </div>`;
+
+ const credito=r.cred*cred/100,custoReal=r.total-credito,ret=r.split*share/100;
+ const Cli=html`<div class="grid gap-4 xl:grid-cols-2"><div>
+  <div class="card"><h3 class="ct">Custo real para o cliente PJ<${Tip} k="custoReal"/></h3>
+   <${Field} label="Crédito aproveitado pelo cliente" tip="cred" v=${cred} set=${setCred} min=${0} max=${100} step=${5} pre="" suf="%" slider=${true}/>
+   <${Field} label="Markup de revenda do cliente" v=${mk} set=${setMk} min=${0} max=${150} step=${1} pre="" suf="%"/>
+   <table><tbody><tr><td>Valor da nota</td><td class="r">${brl(r.total)}</td></tr><tr><td>(−) Créditos de ICMS, CBS e IBS</td><td class="r posc">− ${brl(credito)}</td></tr><tr class="tot"><td>Custo efetivo de entrada</td><td class="r">${brl(custoReal)}</td></tr><tr><td>Revenda sugerida (sem imposto de saída)</td><td class="r">${brl(custoReal*(1+mk/100))}</td></tr></tbody></table></div>
+  ${Dl('Detalhamento do cálculo',['Crédito = (ICMS + CBS + IBS) × % = ('+brl(r.icms)+' + '+brl(r.cbs)+' + '+brl(r.ibs)+') × '+cred+'% = '+brl(credito),'Custo efetivo = '+brl(r.total)+' − '+brl(credito)+' = '+brl(custoReal),'Revenda = '+brl(custoReal)+' × (1 + '+mk+'%) = '+brl(custoReal*(1+mk/100))])}</div>
+  <div><div class="card"><h3 class="ct">Split payment na liquidação<${Tip} k="split"/></h3>
+   <div style=${{display:'flex',height:34}}><div style=${{width:(r.total?(r.total-ret)/r.total*100:0)+'%',background:'var(--pos)',color:'#fff',padding:'6px 10px',fontSize:12,overflow:'hidden'}}>Indústria ${brl(r.total-ret)}</div><div style=${{width:(r.total?ret/r.total*100:0)+'%',background:'#9f1853',minWidth:2}}></div></div>
+   <p class="sub mt-2">Retido: <b class="mono">${brl(ret)}</b> (CBS ${brl(r.cbs*share/100)} + IBS ${brl(r.ibs*share/100)})</p>
+   <${Field} label="Vendas liquidadas com split" v=${share} set=${setShare} min=${0} max=${100} step=${1} pre="" suf="%"/>
+   <${Field} label="Volume mensal" v=${vol} set=${setVol} min=${0} max=${100000} step=${10} pre="" suf="un"/>
+   <table><tbody><tr><td>Faturamento mensal</td><td class="r">${brl(r.total*vol)}</td></tr><tr><td>Retenção mensal do split</td><td class="r neg">− ${brl(ret*vol)}</td></tr><tr><td>Crédito de CBS/IBS da matéria-prima</td><td class="r posc">+ ${brl((r.mpCbs+r.mpIbs)*vol)}</td></tr><tr class="tot"><td>Gap de caixa mensal<${Tip} k="split" r=${true}/></td><td class="r">${brl((ret-r.mpCbs-r.mpIbs)*vol)}</td></tr></tbody></table>
+   <p class="sub mt-2" style=${{marginBottom:0}}>O split retém o CBS e o IBS cheios da venda. O crédito da matéria-prima só compensa depois, o que pressiona o capital de giro.</p></div>
+  ${Dl('Detalhamento do cálculo',['Retenção = (CBS + IBS + IS) × % com split = ('+brl(r.cbs)+' + '+brl(r.ibs)+' + '+brl(r.is)+') × '+share+'% = '+brl(ret),'Gap mensal = (retenção − crédito CBS/IBS da MP) × volume = ('+brl(ret)+' − '+brl(r.mpCbs+r.mpIbs)+') × '+vol+' = '+brl((ret-r.mpCbs-r.mpIbs)*vol)])}</div></div>`;
+
+ const sens=[-20,-15,-10,-5,0,5,10,15,20].map(d=>{const price=r2(r.total*(1+d/100));return {d,price,...calc(pr,S,price)}});
+ const Sens=html`<div><p class="sub">Veja como a margem muda se o preço subir ou cair. Clique em uma linha para adotar o preço.</p><div class="card overflow-x-auto"><table style=${{minWidth:700}}><thead><tr><th class="r">Variação</th><th class="r">Preço de venda</th><th class="r">Lucro unit.</th><th class="r">Margem s/ venda</th><th class="r">Margem s/ operação</th><th class="r">Markup s/ CPV</th><th>Situação</th></tr></thead><tbody>
+  ${sens.map(x=>{const st=x.lucro<=0?'e':x.mLiq<mmin?'a':'ok';return html`<tr key=${x.d} class=${x.d===0?'hl':''} style=${{cursor:'pointer'}} onClick=${()=>upd('price',x.price)} tabindex="0" onKeyDown=${e=>{if(e.key==='Enter')upd('price',x.price)}}><td class="r">${x.d>0?'+':''}${x.d}%</td><td class="r">${brl(x.price)}</td><td class=${'r '+(x.lucro>0?'posc':'neg')}>${brl(x.lucro)}</td><td class="r">${pc(x.mPreco,1)}</td><td class="r">${pc(x.mLiq,1)}</td><td class="r">${pc(x.mk,1)}</td><td><span class=${'pill '+st}>${st==='ok'?'Dentro da margem':st==='a'?'Abaixo do mínimo':'Prejuízo'}</span></td></tr>`})}
+  </tbody></table></div>${Dl('Detalhamento do cálculo',['Preço = preço atual × (1 + variação) = '+brl(r.total)+' × (1 + variação)','Margens recalculadas com o mesmo fator f = '+fS+', CPV = '+brl(pr.cpv)+' e frete = '+brl(pr.fr)])}</div>`;
+
+ const model={projeto:{criadoPor:'Marcelo Cleiton',finalidade:'Análise do impacto da Reforma Tributária (LC 214/2025) nas aplicações da SN SISTEMA'},entrada:{produto:pr.n,unidade:pr.u,cpv:pr.cpv,frete:pr.fr,materiaPrimaBruta:pr.mp,metaMargemPct:pr.m,baseDaMeta:basis,descontoNota:pr.desc||0,precoManual:pr.price},parametros:{horizonte:hor,regime:reg,aliquotas:rt,margemMinimaPct:mmin,limiteDescontoPct:lim,faixas:faixas},resultado:{fator:+r.f.toFixed(6),precoSugerido:r.sug,precoVenda:r2(r.total),precoOperacao:r2(r.base),icms:r2(r.icms),cbs:r2(r.cbs),ibs:r2(r.ibs),lucro:r2(r.lucro),margemSobrePrecoVendaPct:+r.mPreco.toFixed(2),margemSobrePrecoOperacaoPct:+r.mLiq.toFixed(2),markupSobreCpvPct:+r.mk.toFixed(2),precoMinimo:r.minP,pontoEquilibrio:r2(r.eq)}};
+ const Gl=html`<div class="grid gap-4 xl:grid-cols-2"><div class="card xl:col-span-2" style=${{borderLeft:'4px solid var(--pri)'}}><h3 class="ct">Sobre o projeto</h3><p style=${{margin:0}}>Projeto criado por <b>Marcelo Cleiton</b> para analisar o impacto da Reforma Tributária (LC 214/2025) nas aplicações da <b>SN SISTEMA</b>. O simulador é base de estudo para implementar no ERP as regras de precificação, créditos, split payment e desconto por quantidade.</p></div><div class="card"><h3 class="ct">Glossário</h3>${Object.values(GL).map(g=>html`<div key=${g[0]} style=${{marginBottom:10}}><b>${g[0]}</b><div class="sub" style=${{fontSize:13}}>${g[1]}</div>${g[2]&&html`<div class="mono sub">${g[2]}</div>`}</div>`)}
+  <p class="sub">Base: LC 214/2025 (cálculo por fora, Art. 12; split, Arts. 31 a 35; não cumulatividade, Art. 47). Confirme alíquotas e enquadramento com a contabilidade.</p></div>
+  <div class="card"><h3 class="ct">Modelo de dados do produto (referência para o ERP)</h3><p class="sub">Entradas, parâmetros e resultados do produto selecionado, no formato em que poderiam trafegar entre telas e serviços.</p><pre class="mono" style=${{fontSize:11,overflow:'auto',maxHeight:520,background:'var(--bg)',padding:10,margin:0}}>${JSON.stringify(model,null,2)}</pre></div></div>`;
+
+ return html`<div>
+  <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-xs" style=${{background:'#161616',color:'#f4f4f4',borderBottom:'2px solid #0f62fe'}}>
+   <span class="mono"><b style=${{background:'#0f62fe',padding:'2px 6px'}}>PRECIFICADOR</b> Indústria e distribuidora de pães e congelados · LC 214/2025</span>
+   <span class="flex flex-wrap items-center gap-3"><label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" checked=${det} onChange=${e=>setDet(e.target.checked)}/> Detalhar cálculos</label><button class="btn2" style=${{padding:'3px 10px'}} onClick=${flip}>Tema</button><button class="btn2" style=${{padding:'3px 10px'}} onClick=${restaurar}>Restaurar padrão</button></span></div>
+  <div style=${{background:'#0f62fe',color:'#fff',padding:'10px 16px',display:'flex',flexWrap:'wrap',gap:'6px 14px',alignItems:'center',justifyContent:'center',fontSize:13,textAlign:'center'}}><span style=${{background:'#fff',color:'#0f62fe',padding:'2px 10px',fontWeight:700,letterSpacing:'.06em'}}>MARCELO CLEITON</span><span>Projeto criado para analisar o impacto da Reforma Tributária nas aplicações da SN SISTEMA</span></div>
+  <div class="max-w-[1500px] mx-auto p-4 grid gap-5 lg:grid-cols-[330px_1fr] items-start">
+   <aside class="grid gap-4" aria-label="Produtos e regras">
+    <div class="card"><h2 class="ct">Produtos</h2>
+     ${prods.map(p=>{const q=calc(p,S,p.price),s=stat(p);return html`<button key=${p.id} class=${'prod '+(p.id===pr.id?'on':'')} onClick=${()=>{setSel(p.id);setConf(false)}}><span class="dot" style=${{background:col[s]}} title=${s==='e'?'Atenção: prejuízo ou margem abaixo do mínimo':s==='a'?'Abaixo da meta':'Dentro da meta'}></span><span style=${{flex:1,minWidth:0}}><span class="lbl" style=${{display:'block'}}>${p.n}</span><span class="sub">${p.u} · margem ${pc(q.mLiq,1)}</span></span><b class="mono">${brl(q.total)}</b></button>`})}
+     <button class="btn2 w-full mt-1" onClick=${novo}>+ Novo produto</button></div>
+    <details class="card" open><summary class="ct" style=${{cursor:'pointer'}}>Regras gerais</summary>
+     <div class="lbl mb-1">Horizonte fiscal<${Tip} k="hor"/></div><div class="flex flex-wrap gap-2 mb-3">${Object.entries(HOR).map(([k,x])=>html`<button key=${k} class=${'chip '+(hor===k?'on':'')} onClick=${()=>applySch(k,reg)}>${x.t}</button>`)}</div>
+     <div class="lbl mb-1">Regime do produto<${Tip} k="reg"/></div><select class="sel mb-3" value=${reg} onChange=${e=>applySch(hor,e.target.value)}>${Object.entries(REG).map(([k,x])=>html`<option key=${k} value=${k}>${x.n}</option>`)}</select>
+     <div class="lbl mb-1">Meta de margem medida sobre<${Tip} k="basis"/></div><div class="flex flex-wrap gap-2 mb-3"><button class=${'chip '+(basis==='cpv'?'on':'')} onClick=${()=>setBasis('cpv')}>O custo (CPV)</button><button class=${'chip '+(basis==='liq'?'on':'')} onClick=${()=>setBasis('liq')}>O preço da operação</button></div>
+     <${Field} label="Margem mínima aceita" tip="mmin" v=${mmin} set=${setMmin} min=${0} max=${60} step=${0.5} pre="" suf="%" slider=${true} hint="Sobre o preço da operação. Abaixo dela o simulador alerta."/>
+     <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" checked=${adv} onChange=${e=>setAdv(e.target.checked)}/> Ajustar alíquotas manualmente</label>
+     ${adv&&html`<div class="mt-3">${[['icms','ICMS (por dentro)','icms',30],['cbs','CBS (dedução)','cbs',20],['ibs','IBS (dedução)','ibs',30],['is','Imposto Seletivo','is',40]].map(([k,t,g,mx])=>html`<${Field} key=${k} label=${t} tip=${g} v=${rt[k]} set=${v=>setRt({...rt,[k]:v})} min=${0} max=${mx} step=${0.1} pre="" suf="%"/>`)}</div>`}</details>
+    <div class="card"><h2 class="ct">Levar para o simulador de venda</h2><p class="sub">Copie o código com todos os produtos, preços e faixas e cole no simulador de venda.</p>
+     <div class="flex flex-wrap items-center gap-2"><button class="btn" onClick=${copy}>Copiar código</button><a class="sub" style=${{textDecoration:'underline'}} href="https://claude.ai/artifact/1qez9YgsiEkQr62Jq6t6SG" target="_blank" rel="noopener">Abrir simulador de venda</a></div>
+     <div class="sub mt-2">${msg}</div><textarea readOnly rows="2" value=${exportCode()} onFocus=${e=>e.target.select()} class="mono" style=${{width:'100%',marginTop:6,background:'var(--bg)',color:'var(--ink)',border:'1px solid var(--line)',fontSize:10,padding:6}}></textarea></div>
+   </aside>
+   <main class="min-w-0">
+    <div class="flex flex-wrap items-center gap-3 mb-2"><h1 style=${{fontSize:24,fontWeight:600,margin:0}}>${pr.n}</h1><span class=${'pill '+worst}>${worst==='e'?'Requer atenção':worst==='a'?'Revisar':'Tudo certo'}</span><span class="sub">${A.filter(x=>x.s!=='i').length} alerta(s)</span></div>
+    <div class="flex overflow-x-auto mb-4" role="tablist" style=${{borderBottom:'1px solid var(--line)'}}>${TABS.map(([k,t])=>html`<button key=${k} role="tab" aria-selected=${tab===k} class=${'tab '+(tab===k?'on':'')} onClick=${()=>setTab(k)}>${t}</button>`)}</div>
+    ${tab==='preco'&&Preco}${tab==='imp'&&Imp}${tab==='qtd'&&Qtd}${tab==='cli'&&Cli}${tab==='sens'&&Sens}${tab==='gl'&&Gl}
+   </main></div>
+  <footer class="sub" style=${{borderTop:'1px solid var(--line)',padding:'18px 16px',textAlign:'center'}}><b style=${{color:'var(--ink)',letterSpacing:'.04em'}}>MARCELO CLEITON</b> · Criador do projeto · Análise do impacto da Reforma Tributária (LC 214/2025) nas aplicações da SN SISTEMA<br/>© 2026 Marcelo Cleiton. Ao compartilhar ou reutilizar este simulador, mantenha o crédito do autor.</footer></div>`;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

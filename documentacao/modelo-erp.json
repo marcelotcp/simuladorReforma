@@ -1,0 +1,694 @@
+{
+  "autoria": {
+    "criador": "MARCELO CLEITON",
+    "finalidade": "Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA.",
+    "copyright": "© 2026 Marcelo Cleiton",
+    "credito": "MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton"
+  },
+  "versao": 4,
+  "observacao": "Proposta de contratos para discussão com a equipe; não é schema fiscal oficial.",
+  "entidades": {
+    "Produto": {
+      "chave": "id",
+      "campos": [
+        "nome",
+        "unidade",
+        "ncm",
+        "descricaoTecnica",
+        "cpvLiquido",
+        "freteUnitario",
+        "ativo",
+        "ncmCodigoExistente",
+        "ncmBaseConsultadaEm"
+      ]
+    },
+    "EnquadramentoFiscal": {
+      "chave": "id",
+      "referencias": [
+        "produtoId",
+        "parametroFiscalId"
+      ],
+      "campos": [
+        "ufOrigem",
+        "ufDestino",
+        "regimeFornecedor",
+        "regimeDestinatario",
+        "cst",
+        "cClassTrib",
+        "tratamento",
+        "inicioVigencia",
+        "fimVigencia",
+        "responsavelValidacao",
+        "fonte"
+      ]
+    },
+    "ParametroFiscal": {
+      "chave": "id",
+      "campos": [
+        "tributo",
+        "aliquota",
+        "regrasBase",
+        "escala",
+        "fonteUrl",
+        "artigo",
+        "inicioVigencia",
+        "fimVigencia",
+        "consultadoEm",
+        "situacao",
+        "versao"
+      ]
+    },
+    "TabelaPreco": {
+      "chave": "id",
+      "campos": [
+        "nome",
+        "vigencia",
+        "versao",
+        "situacao"
+      ]
+    },
+    "ItemTabelaPreco": {
+      "chave": "id",
+      "referencias": [
+        "tabelaPrecoId",
+        "produtoId"
+      ],
+      "campos": [
+        "precoFinal",
+        "pisoAutorizado",
+        "motorVersao",
+        "parametrosSnapshot",
+        "precoConsumidor",
+        "precoSugeridoCalculado",
+        "precoReformaCalculado",
+        "descontoMaximo",
+        "precoMinimoComercialCalculado",
+        "margemDesejada",
+        "baseMargem",
+        "regimeComposicao",
+        "aliquotasEfetivasPorVigencia",
+        "simplesEfetivo",
+        "operacionalPct",
+        "comissaoPct",
+        "fretePorTonelada",
+        "tabelaAtivaParaVenda"
+      ]
+    },
+    "FaixaDesconto": {
+      "chave": "id",
+      "referencias": [
+        "itemTabelaPrecoId"
+      ],
+      "campos": [
+        "quantidadeInicial",
+        "percentual",
+        "descontoMinimo",
+        "descontoMaximo"
+      ]
+    },
+    "Pedido": {
+      "chave": "id",
+      "referencias": [
+        "clienteId",
+        "tabelaPrecoId"
+      ],
+      "campos": [
+        "data",
+        "prazoDias",
+        "descontoIncondicional",
+        "status",
+        "versao",
+        "total",
+        "outrasDespesasCobradas",
+        "ipiInformado",
+        "icmsStInformado",
+        "totalSemCbsIbsCalculado",
+        "totalCbsIbsCalculado"
+      ]
+    },
+    "ItemPedido": {
+      "chave": "id",
+      "referencias": [
+        "pedidoId",
+        "produtoId",
+        "enquadramentoFiscalId"
+      ],
+      "campos": [
+        "quantidade",
+        "precoUnitario",
+        "descontoRateado",
+        "tributos",
+        "resultado",
+        "memoriaCalculo",
+        "parametrosSnapshot",
+        "tabelaPrecoId",
+        "precoDigitadoAntesDesconto",
+        "descontoItemPct",
+        "descontoItemValor",
+        "descontoGeralRateado",
+        "outrasDespesasRateadas"
+      ]
+    },
+    "CreditoFiscal": {
+      "chave": "id",
+      "referencias": [
+        "documentoAquisicaoId",
+        "produtoId"
+      ],
+      "campos": [
+        "tributo",
+        "valorDestacado",
+        "valorElegivel",
+        "valorApropriado",
+        "dataExtincao",
+        "dataApropriacao",
+        "situacao",
+        "estorno"
+      ]
+    },
+    "Liquidacao": {
+      "chave": "id",
+      "referencias": [
+        "pedidoId",
+        "documentoFiscalId",
+        "transacaoPagamentoId"
+      ],
+      "campos": [
+        "data",
+        "bruto",
+        "retencaoCbs",
+        "retencaoIbs",
+        "liquido",
+        "procedimento",
+        "debitoJaExtinto",
+        "respostaConciliacao"
+      ]
+    },
+    "Apuracao": {
+      "chave": "id",
+      "campos": [
+        "estabelecimentoId",
+        "competencia",
+        "tributo",
+        "debitos",
+        "creditos",
+        "estornos",
+        "extincoes",
+        "saldo",
+        "versao"
+      ]
+    },
+    "EntradaMercadoria": {
+      "chave": "id",
+      "campos": [
+        "documento",
+        "data",
+        "fornecedorId",
+        "estabelecimentoId",
+        "situacao"
+      ]
+    },
+    "ItemEntrada": {
+      "chave": "id",
+      "referencias": [
+        "entradaMercadoriaId",
+        "produtoId"
+      ],
+      "campos": [
+        "unidade",
+        "pesoKgUnidade",
+        "quantidade",
+        "estoqueAtualReferencia",
+        "custoBrutoUnitario",
+        "descontoUnitario",
+        "creditoIcmsUnitario",
+        "creditoCbsUnitario",
+        "creditoIbsUnitario",
+        "custoLiquidoUnitario"
+      ]
+    }
+  },
+  "restricoes": [
+    "FaixaDesconto: UNIQUE(itemTabelaPrecoId, quantidadeInicial)",
+    "ParametroFiscal: evitar vigências sobrepostas para a mesma chave de contexto",
+    "Pedido: controle de versão otimista e chave de idempotência",
+    "Liquidacao: conciliação idempotente por transação/documento",
+    "Créditos IBS e CBS segregados; sem compensação cruzada",
+    "Valores monetários em decimal ou string decimal no transporte; escalas explícitas",
+    "Custos e permissões validados no servidor; payload vendedor sem CPV",
+    "UF por lista fechada; NCM por existência no catálogo oficial incorporado; validar adequação e vigência na data da operação.",
+    "Modo único Gestor. Total sem reforma remove somente CBS/IBS.",
+    "IPI e ST são montantes externos, sem cálculo de base ou validação da incidência."
+  ],
+  "exemplo": {
+    "entrada": {
+      "documento": "A informar",
+      "data": "",
+      "fornecedor": "A informar",
+      "custoBruto": 50,
+      "desconto": 0,
+      "creditoIcms": 0,
+      "creditoCbs": 0,
+      "creditoIbs": 0,
+      "quantidade": 0,
+      "estoque": 0,
+      "estoqueInformado": false,
+      "pesoKg": 5
+    },
+    "tabelas": [
+      {
+        "id": "padrao",
+        "nome": "Tabela padrão",
+        "precoConsumidor": 95.02,
+        "desconto": 0,
+        "margem": 20,
+        "regime": "regular",
+        "simples": 0,
+        "operacional": 0,
+        "comissao": 0,
+        "freteTonelada": 2000,
+        "fretePendente": false,
+        "freteUnitarioLegado": 10,
+        "fiscal": {}
+      },
+      {
+        "id": "atacado",
+        "nome": "Atacado · exemplo",
+        "precoConsumidor": 100.02,
+        "desconto": 5,
+        "margem": 20,
+        "regime": "regular",
+        "simples": 0,
+        "operacional": 0,
+        "comissao": 0,
+        "freteTonelada": 2000,
+        "fretePendente": false,
+        "freteUnitarioLegado": 10,
+        "fiscal": {}
+      },
+      {
+        "id": "distribuidor",
+        "nome": "Distribuidor · exemplo",
+        "precoConsumidor": 103.28,
+        "desconto": 8,
+        "margem": 20,
+        "regime": "regular",
+        "simples": 0,
+        "operacional": 0,
+        "comissao": 0,
+        "freteTonelada": 2000,
+        "fretePendente": false,
+        "freteUnitarioLegado": 10,
+        "fiscal": {}
+      }
+    ],
+    "parametros": {
+      "regra": {
+        "baseMeta": "cpv",
+        "minMargem": 8,
+        "descMin": 0,
+        "descMax": 10
+      },
+      "fiscal": {
+        "icms": 18,
+        "cbs": 11.2,
+        "ibs": 0.1,
+        "is": 0,
+        "fatorReduzida": 0.4,
+        "modelo": "encadeado",
+        "incluirNovosNoIcms": true,
+        "inicio": "2027-01-01",
+        "fim": "2027-12-31",
+        "atualizado": "2026-11-11",
+        "fonte": "CBS 11,2%: hipótese (referência TCU 11,3% menos 0,1 p.p.; fixação a validar). IBS: LC 214 art.344; ICMS: hipótese. Bases: Consulta SEFA/PR 48/2026.",
+        "url": "https://atendimento.fazenda.pr.gov.br/sacsefa/portal/assuntosReferente/56",
+        "situacao": "Premissa de estudo — validar UF, regime, produto e atos vigentes",
+        "alterado": false
+      }
+    },
+    "resultados": [
+      {
+        "tabela": "Tabela padrão",
+        "f": 1.3573170731707318,
+        "preco": 95.02,
+        "receita": 70.00575022461815,
+        "baseCbsIbs": 70.00575022461815,
+        "baseIcms": 95.02,
+        "icms": 17.1036,
+        "cbs": 7.840644025157233,
+        "ibs": 0.07000575022461815,
+        "is": 0,
+        "tributos": 25.014249775381852,
+        "aliquotas": {
+          "icms": 18,
+          "cbs": 11.2,
+          "ibs": 0.1,
+          "is": 0
+        },
+        "precoConsumidor": 95.02,
+        "precoReforma": 70.00575022461815,
+        "precoMinimoComercial": 95.02,
+        "sugerido": 95.02,
+        "alvo": 70,
+        "antesDesconto": 70,
+        "custo": 60,
+        "cpv": 50,
+        "frete": 10,
+        "pesoKg": 5,
+        "operacional": 0,
+        "comissao": 0,
+        "simples": 0,
+        "lucro": 10.005750224618149,
+        "mOper": 14.292754798733,
+        "mVenda": 10.53015178343312,
+        "markup": 20.011500449236298,
+        "minimo": 88.53,
+        "pisoTecnico": 88.53,
+        "equilibrio": 81.44,
+        "margemNoMinimo": 14.292754798733,
+        "lucroNoMinimo": 10.005750224618149,
+        "descontoMax": 6.83,
+        "descontoBase": 0,
+        "descontoFinalEquivalente": 0,
+        "status": "seguro",
+        "statusMinimo": "seguro",
+        "fiscalTabela": {
+          "ano": "2027",
+          "taxas": {
+            "icms": 18,
+            "cbs": 11.2,
+            "ibs": 0.1,
+            "is": 0
+          },
+          "alterado": false,
+          "fonte": "CBS 11,2%: hipótese (referência TCU 11,3% menos 0,1 p.p.; fixação a validar). IBS: LC 214 art.344; ICMS: hipótese. Bases: Consulta SEFA/PR 48/2026.",
+          "atualizado": "2026-11-11"
+        },
+        "tabelaId": "padrao",
+        "percentuais": {
+          "desconto": 0,
+          "margem": 20,
+          "operacional": 0,
+          "comissao": 0,
+          "simples": 0
+        },
+        "denominador": 0.7367475292003594,
+        "despesasFracao": 0
+      },
+      {
+        "tabela": "Atacado · exemplo",
+        "f": 1.3573170731707318,
+        "preco": 100.02,
+        "receita": 73.68948787061994,
+        "baseCbsIbs": 73.68948787061994,
+        "baseIcms": 100.02,
+        "icms": 18.0036,
+        "cbs": 8.253222641509433,
+        "ibs": 0.07368948787061995,
+        "is": 0,
+        "tributos": 26.330512129380054,
+        "aliquotas": {
+          "icms": 18,
+          "cbs": 11.2,
+          "ibs": 0.1,
+          "is": 0
+        },
+        "precoConsumidor": 100.02,
+        "precoReforma": 73.68948787061994,
+        "precoMinimoComercial": 95.02,
+        "sugerido": 100.02,
+        "alvo": 70,
+        "antesDesconto": 70,
+        "custo": 60,
+        "cpv": 50,
+        "frete": 10,
+        "pesoKg": 5,
+        "operacional": 0,
+        "comissao": 0,
+        "simples": 0,
+        "lucro": 13.689487870619946,
+        "mOper": 18.577260157724552,
+        "mVenda": 13.686750520515844,
+        "markup": 27.37897574123989,
+        "minimo": 88.53,
+        "pisoTecnico": 88.53,
+        "equilibrio": 81.44,
+        "margemNoMinimo": 14.292754798733,
+        "lucroNoMinimo": 10.005750224618149,
+        "descontoMax": 11.48,
+        "descontoBase": 0,
+        "descontoFinalEquivalente": 0,
+        "status": "seguro",
+        "statusMinimo": "seguro",
+        "fiscalTabela": {
+          "ano": "2027",
+          "taxas": {
+            "icms": 18,
+            "cbs": 11.2,
+            "ibs": 0.1,
+            "is": 0
+          },
+          "alterado": false,
+          "fonte": "CBS 11,2%: hipótese (referência TCU 11,3% menos 0,1 p.p.; fixação a validar). IBS: LC 214 art.344; ICMS: hipótese. Bases: Consulta SEFA/PR 48/2026.",
+          "atualizado": "2026-11-11"
+        },
+        "tabelaId": "atacado",
+        "percentuais": {
+          "desconto": 5,
+          "margem": 20,
+          "operacional": 0,
+          "comissao": 0,
+          "simples": 0
+        },
+        "denominador": 0.7367475292003594,
+        "despesasFracao": 0
+      },
+      {
+        "tabela": "Distribuidor · exemplo",
+        "f": 1.3573170731707318,
+        "preco": 103.28,
+        "receita": 76.09128481581311,
+        "baseCbsIbs": 76.09128481581311,
+        "baseIcms": 103.28,
+        "icms": 18.5904,
+        "cbs": 8.522223899371069,
+        "ibs": 0.07609128481581312,
+        "is": 0,
+        "tributos": 27.188715184186883,
+        "aliquotas": {
+          "icms": 18,
+          "cbs": 11.2,
+          "ibs": 0.1,
+          "is": 0
+        },
+        "precoConsumidor": 103.28,
+        "precoReforma": 76.09128481581311,
+        "precoMinimoComercial": 95.02,
+        "sugerido": 103.28,
+        "alvo": 70,
+        "antesDesconto": 70,
+        "custo": 60,
+        "cpv": 50,
+        "frete": 10,
+        "pesoKg": 5,
+        "operacional": 0,
+        "comissao": 0,
+        "simples": 0,
+        "lucro": 16.09128481581312,
+        "mOper": 21.147342766998545,
+        "mVenda": 15.58025253273927,
+        "markup": 32.18256963162624,
+        "minimo": 88.53,
+        "pisoTecnico": 88.53,
+        "equilibrio": 81.44,
+        "margemNoMinimo": 14.292754798733,
+        "lucroNoMinimo": 10.005750224618149,
+        "descontoMax": 14.28,
+        "descontoBase": 0,
+        "descontoFinalEquivalente": 0,
+        "status": "seguro",
+        "statusMinimo": "seguro",
+        "fiscalTabela": {
+          "ano": "2027",
+          "taxas": {
+            "icms": 18,
+            "cbs": 11.2,
+            "ibs": 0.1,
+            "is": 0
+          },
+          "alterado": false,
+          "fonte": "CBS 11,2%: hipótese (referência TCU 11,3% menos 0,1 p.p.; fixação a validar). IBS: LC 214 art.344; ICMS: hipótese. Bases: Consulta SEFA/PR 48/2026.",
+          "atualizado": "2026-11-11"
+        },
+        "tabelaId": "distribuidor",
+        "percentuais": {
+          "desconto": 8,
+          "margem": 20,
+          "operacional": 0,
+          "comissao": 0,
+          "simples": 0
+        },
+        "denominador": 0.7367475292003594,
+        "despesasFracao": 0
+      }
+    ]
+  },
+  "rastreabilidade": [
+    {
+      "regra": "R01",
+      "descricao": "Base de CBS/IBS e desconto incondicional",
+      "classificacao": "Confirmada na lei",
+      "artigo": "LC 214 art.12 §1º IV, §2º I,III,V e §3º",
+      "funcao": "decompor / ratear",
+      "testes": "T04, T08",
+      "limite": "Descontos futuros não são tratados como incondicionais.",
+      "fonte": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html"
+    },
+    {
+      "regra": "R02",
+      "descricao": "ICMS por dentro e bases cruzadas",
+      "classificacao": "Confirmada / aplicação por UF a validar",
+      "artigo": "LC 87 art.13 §1º I; Consulta SEFA/PR 48/2026",
+      "funcao": "fator / decompor",
+      "testes": "T01, T05",
+      "limite": "Inclusão parametrizada; ICMS 18% é hipótese.",
+      "fonte": "https://atendimento.fazenda.pr.gov.br/sacsefa/portal/assuntosReferente/56"
+    },
+    {
+      "regra": "R03",
+      "descricao": "CBS 11,2% no exemplo",
+      "classificacao": "Premissa do autor, a validar",
+      "artigo": "LC 214 art.347; referência TCU encaminhada ao Senado",
+      "funcao": "aliquotas",
+      "testes": "T01",
+      "limite": "Não apresentada como alíquota definitivamente fixada.",
+      "fonte": "https://portal.tcu.gov.br/imprensa/noticias/presidente-do-tcu-entrega-ao-senado-acordao-sobre-aliquota-de-referencia-da-cbs"
+    },
+    {
+      "regra": "R04",
+      "descricao": "Horizontes 2026–2033",
+      "classificacao": "Confirmada quanto ao cronograma; taxas futuras estimadas",
+      "artigo": "EC 132/2023, ADCT arts.125–129",
+      "funcao": "aliquotas",
+      "testes": "T09",
+      "limite": "2026 não modela PIS/Cofins, compensação ou dispensa.",
+      "fonte": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc132.htm"
+    },
+    {
+      "regra": "R05",
+      "descricao": "Crédito apenas na matéria-prima",
+      "classificacao": "Divergente da lei",
+      "artigo": "LC 214 arts.47–49; LC 87 arts.20 e 33",
+      "funcao": "calcularCaixa",
+      "testes": "T06",
+      "limite": "Créditos elegíveis separados; sem inferência pela taxa de saída.",
+      "fonte": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html"
+    },
+    {
+      "regra": "R06",
+      "descricao": "Split integral obrigatório em todo boleto e inclusão de IS",
+      "classificacao": "Divergente como regra universal",
+      "artigo": "LC 214 arts.31–35, especialmente art.32 §3º",
+      "funcao": "calcularCaixa",
+      "testes": "T06, T07",
+      "limite": "IS excluído. Cronograma e meio de pagamento a validar.",
+      "fonte": "https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/setembro/comunicado-5"
+    },
+    {
+      "regra": "R07",
+      "descricao": "Pães e congelados automaticamente na cesta básica",
+      "classificacao": "Divergente da lei",
+      "artigo": "LC 214 art.125/Anexo I e art.135/Anexo VII",
+      "funcao": "aliquotas",
+      "testes": "T09",
+      "limite": "NCM e descrição técnica pendentes no catálogo de exemplo.",
+      "fonte": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html"
+    },
+    {
+      "regra": "R08",
+      "descricao": "IS genérico de 15%",
+      "classificacao": "Premissa sem fundamento demonstrado",
+      "artigo": "LC 214 arts.409,414,422; Anexo XVII",
+      "funcao": "fator / decompor",
+      "testes": "T10",
+      "limite": "IS separado do tratamento CBS/IBS; simulação apenas.",
+      "fonte": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html"
+    },
+    {
+      "regra": "R09",
+      "descricao": "Margens e faixas comerciais",
+      "classificacao": "Premissa gerencial do autor",
+      "artigo": "Sem artigo: política comercial; desconto fiscal depende do art.12",
+      "funcao": "calcularProduto / faixa",
+      "testes": "T02, T03, T11",
+      "limite": "Margem mínima uniforme sobre a receita sem tributos.",
+      "fonte": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html"
+    },
+    {
+      "regra": "R10",
+      "descricao": "Crédito automático por ser cliente PJ",
+      "classificacao": "Divergente da lei",
+      "artigo": "LC 214 arts.41,47–49; LC 123 art.23",
+      "funcao": "calcularCaixa",
+      "testes": "T06",
+      "limite": "Não prometer crédito em argumento comercial.",
+      "fonte": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm"
+    },
+    {
+      "regra": "R11",
+      "descricao": "Rateio e arredondamento",
+      "classificacao": "Decisão de implementação",
+      "artigo": "Política comercial; regras fiscais do documento a validar",
+      "funcao": "ratear / teto / dinheiro",
+      "testes": "T08, T12",
+      "limite": "Centavos por maiores restos, sem presunção de regra fiscal universal.",
+      "fonte": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html"
+    },
+    {
+      "regra": "R12",
+      "descricao": "Perdas de perecíveis",
+      "classificacao": "Confirmada na lei, com condições",
+      "artigo": "LC 214 art.47 §6º",
+      "funcao": "Dados / futura apuração",
+      "testes": "Pendente",
+      "limite": "Estorno por perecimento não automatizado na versão inicial.",
+      "fonte": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html"
+    },
+    {
+      "regra": "R13",
+      "descricao": "Despesas, frete por tonelada e desconto de tabela",
+      "classificacao": "Premissas comerciais explícitas",
+      "artigo": "Sem fórmula legal de precificação; Simples: LC 123 art.13 e LC 214 art.41",
+      "funcao": "calcularEntrada / calcularTabela",
+      "testes": "G01–G10",
+      "limite": "Não somar DAS total aos mesmos tributos regulares; validar bases comerciais.",
+      "fonte": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm"
+    },
+    {
+      "regra": "R14",
+      "descricao": "Pedido e totalizadores",
+      "artigo": "LC 214 art.12; IPI/ST informados, incidência e bases não automatizadas",
+      "funcao": "calcularPedido",
+      "testes": "P01–P10",
+      "limite": "Valores de IPI/ST apurados externamente; possíveis efeitos cruzados a validar."
+    },
+    {
+      "regra": "R15",
+      "descricao": "UF e NCM por cadastro oficial",
+      "funcao": "validarUf / validarNcm",
+      "testes": "P11–P12 e UI13",
+      "fonte": "https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json"
+    }
+  ],
+  "fontes": {
+    "lc214": "https://www2.camara.leg.br/legin/fed/leicom/2025/leicomplementar-214-16-janeiro-2025-796905-normaatualizada-pl.html",
+    "ec132": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc132.htm",
+    "lc87": "https://www2.camara.leg.br/legin/fed/leicom/1996/leicomplementar-87-13-setembro-1996-370965-normaatualizada-pl.html",
+    "lc123": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm",
+    "pr": "https://atendimento.fazenda.pr.gov.br/sacsefa/portal/assuntosReferente/56",
+    "tcu": "https://portal.tcu.gov.br/imprensa/noticias/presidente-do-tcu-entrega-ao-senado-acordao-sobre-aliquota-de-referencia-da-cbs",
+    "split": "https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/setembro/comunicado-5",
+    "decreto": "https://www2.camara.leg.br/legin/fed/decret/2026/decreto-12955-29-abril-2026-799019-normaatualizada-pe.html"
+  },
+  "versaoInterface": "4.2"
+}

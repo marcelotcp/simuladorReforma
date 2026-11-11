@@ -1,0 +1,53 @@
+{
+  "autoria": "MARCELO CLEITON",
+  "resultados": [
+    {
+      "id": "G01: migra sem alterar consumidor do exemplo inicial",
+      "situacao": "OK"
+    },
+    {
+      "id": "G02: custo líquido desconta créditos da entrada uma única vez",
+      "situacao": "OK"
+    },
+    {
+      "id": "G03: frete por tonelada usa peso em kg por unidade de venda",
+      "situacao": "OK"
+    },
+    {
+      "id": "G04: sugerido protege margem no preço após desconto, com despesas",
+      "situacao": "OK"
+    },
+    {
+      "id": "G05: cada percentual ativo altera o sugerido e não muda consumidor",
+      "situacao": "OK"
+    },
+    {
+      "id": "G06: Simples total não duplica tributos regulares",
+      "situacao": "OK"
+    },
+    {
+      "id": "G07: pedido usa consumidor e despesas da tabela ativa",
+      "situacao": "OK"
+    },
+    {
+      "id": "G08: desconto por faixa respeita o máximo da tabela sem duplicar",
+      "situacao": "OK"
+    },
+    {
+      "id": "G09: preço reforma conserva consumidor menos tributos",
+      "situacao": "OK"
+    },
+    {
+      "id": "G10: impede soma impossível de margens e despesas",
+      "situacao": "OK"
+    },
+    {
+      "id": "G11: rascunho preserva pendência de peso no backup",
+      "situacao": "OK"
+    },
+    {
+      "id": "G12: alíquotas de uma tabela não vazam para outra ou outro horizonte",
+      "situacao": "OK"
+    }
+  ]
+}

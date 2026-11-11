@@ -1,0 +1,91 @@
+{
+  "autoria": {
+    "criador": "MARCELO CLEITON",
+    "finalidade": "Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA.",
+    "copyright": "© 2026 Marcelo Cleiton",
+    "credito": "MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton"
+  },
+  "total": 16,
+  "resultados": [
+    {
+      "id": "T01",
+      "descricao": "Bases encadeadas 2027, com inclusão CBS/IBS no ICMS",
+      "situacao": "OK"
+    },
+    {
+      "id": "T02",
+      "descricao": "Modelo original: casos 1 e 2 do autor preservados",
+      "situacao": "OK"
+    },
+    {
+      "id": "T03",
+      "descricao": "Desconto de 5%: preço e margem nos dois modelos",
+      "situacao": "OK"
+    },
+    {
+      "id": "T04",
+      "descricao": "Pedido misto calcula bases e tributos por item",
+      "situacao": "OK"
+    },
+    {
+      "id": "T05",
+      "descricao": "Conservação da decomposição para 500 cenários",
+      "situacao": "OK"
+    },
+    {
+      "id": "T06",
+      "descricao": "Split padrão deduz extintos e separa créditos de retenção",
+      "situacao": "OK"
+    },
+    {
+      "id": "T07",
+      "descricao": "Split simplificado e desligado; IS nunca retido",
+      "situacao": "OK"
+    },
+    {
+      "id": "T08",
+      "descricao": "Rateio fecha centavos e rejeita desconto excedente",
+      "situacao": "OK"
+    },
+    {
+      "id": "T09",
+      "descricao": "Tratamento reduzido mantém precisão; zero não zera ICMS",
+      "situacao": "OK"
+    },
+    {
+      "id": "T10",
+      "descricao": "IS compõe base nova, sem incidir sobre si",
+      "situacao": "OK"
+    },
+    {
+      "id": "T11",
+      "descricao": "Rejeita faixas duplicadas, inválidas e parâmetros impossíveis",
+      "situacao": "OK"
+    },
+    {
+      "id": "T12",
+      "descricao": "Preço mínimo conserva margem; desconto seguro arredonda para baixo",
+      "situacao": "OK"
+    },
+    {
+      "id": "T13",
+      "descricao": "Valida pacote interno, autoria, tipos e dados fiscais",
+      "situacao": "OK"
+    },
+    {
+      "id": "T14",
+      "descricao": "Pacote comercial calcula sem CPV e respeita piso publicado",
+      "situacao": "OK"
+    },
+    {
+      "id": "T15",
+      "descricao": "Faixas são por produto e usam última quantidade alcançada",
+      "situacao": "OK"
+    },
+    {
+      "id": "T16",
+      "descricao": "Desconto na receita não é repetido na venda",
+      "situacao": "OK"
+    }
+  ]
+}
