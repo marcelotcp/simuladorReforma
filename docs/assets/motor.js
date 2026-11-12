@@ -183,6 +183,13 @@
    return dinheiro(dec(dinheiro(dec(alvo).mul(q))).minus(saldo));
   };
   const ajustar=(rotulo,a,b)=>{if(a||b)etapas.push({rotulo,tipo:'ajuste',valorUnitario:a,valorItem:b})};
+  if(r.icmsIncluidoNoComercial){
+   const preco=r.precoComercial,base=num(dec(preco).minus(r.icms));
+   adicionar('Preço comercial com ICMS incluído',preco,'inicio');
+   adicionar('ICMS já incluído no preço comercial',-r.icms,'deducao');
+   adicionar('Base de cálculo de CBS e IBS',base,'resultado');
+   return {regime:'regular',origem:'preco-comercial',quantidade,etapas,precoComercial:preco,baseCbsIbs:base,baseCbsIbsItem:num(dec(base).mul(quantidade)),ajusteUnitario:0,ajusteItem:0,formula:'Base CBS/IBS = preço comercial − ICMS já incluído. CBS e IBS são calculados depois, sobre essa base.'};
+  }
   adicionar('Preço de venda com os tributos modelados',r.preco,'inicio');
   if(simples){adicionar('Estimativa total do Simples (não segrega os tributos)',-r.simples,'deducao');const a=diferenca(r.receita,r.preco,[r.simples],1),b=diferenca(r.receita,r.preco,[r.simples],quantidade);ajustar('Ajuste apenas da soma exibida em centavos',a,b);adicionar('Receita após estimativa do Simples',r.receita,'resultado');return {regime:'simples',quantidade,etapas,baseCbsIbs:null,baseCbsIbsItem:null,ajusteUnitario:a,ajusteItem:b,formula:'Preço − estimativa total do Simples = receita. Bases individuais de CBS/IBS não segregadas.'};}
   for(const [k,nome] of [['icms','ICMS'],['cbs','CBS'],['ibs','IBS']])adicionar(nome+' retirado do preço',-r[k],'deducao');
@@ -199,8 +206,8 @@
   const baseIcmsCompleta=parametro.modelo!=='original'&&parametro.incluirNovosNoIcms;
   const dados=[
    ['icms','ICMS',r.baseIcms,r.icmsIncluidoNoComercial?'Base ICMS = preço comercial, que já contém o ICMS; CBS/IBS acrescentados não aumentam esse valor':baseIcmsCompleta?'Base ICMS = preço final (inclui o próprio ICMS e CBS/IBS no cenário)':'Base ICMS = (receita sem tributos modelados + IS) ÷ (1 − alíquota ICMS)',r.icmsIncluidoNoComercial?String(r.precoComercial):baseIcmsCompleta?String(r.preco):'('+r.receita+' + '+(r.is||0)+') ÷ (1 − '+num(pct(r.aliquotas.icms))+')'],
-   ['cbs','CBS',r.baseCbsIbs,'Base CBS = receita sem tributos modelados + IS',r.receita+' + '+(r.is||0)],
-   ['ibs','IBS',r.baseCbsIbs,'Base IBS = receita sem tributos modelados + IS',r.receita+' + '+(r.is||0)],
+   ['cbs','CBS',r.baseCbsIbs,r.icmsIncluidoNoComercial?'Base CBS = preço comercial − ICMS já incluído':'Base CBS = receita sem tributos modelados + IS',r.icmsIncluidoNoComercial?r.precoComercial+' − '+r.icms:r.receita+' + '+(r.is||0)],
+   ['ibs','IBS',r.baseCbsIbs,r.icmsIncluidoNoComercial?'Base IBS = preço comercial − ICMS já incluído':'Base IBS = receita sem tributos modelados + IS',r.icmsIncluidoNoComercial?r.precoComercial+' − '+r.icms:r.receita+' + '+(r.is||0)],
    ['is','IS',r.receita,'Base IS de referência do modelo = receita antes do IS',String(r.receita)]
   ];
   const linhas=dados.map(([chave,tributo,base,formulaBase,expressaoBase])=>({chave,tributo,quantidade,baseUnitaria:simples?null:base,baseItem:simples?null:num(dec(base).mul(quantidade)),aliquota:simples?null:r.aliquotas[chave],valorUnitario:simples?null:r[chave],valorItem:simples?null:num(dec(r[chave]).mul(quantidade)),formulaBase:simples?'Não segregado no modelo de Simples total. Não representa tributo isento nem base zero.':formulaBase,expressaoBase:simples?null:expressaoBase,fonte,atualizado,observacao:simples?'A taxa efetiva total é informada pelo responsável; o motor não separa os tributos do DAS.':chave==='is'&&r.aliquotas.is===0?'IS não incidente no cenário; base exibida apenas como referência matemática.':'Base do cenário de estudo; confirmar enquadramento e incidência com o responsável fiscal.'}));
@@ -364,10 +371,13 @@
   // Preço comercial já contém ICMS/IS. Preservá-los e acrescentar somente
   // CBS/IBS sobre a base sem ICMS. Não recalcular ICMS sobre o faturamento.
   const q=dec(quantidade),base=dec(totalComercial).minus(dec(comercial.icms).mul(q));
-  const cbs=base.mul(pct(fiscal.taxas.cbs)),ibs=base.mul(pct(fiscal.taxas.ibs));
+  const cbsPreciso=base.mul(pct(fiscal.taxas.cbs)),ibsPreciso=base.mul(pct(fiscal.taxas.ibs));
+  // Fechar cada tributo do item antes de totalizar: o faturamento deve ser
+  // exatamente comercial + CBS exibida + IBS exibido, sem centavo artificial.
+  const cbs=dec(dinheiro(cbsPreciso)),ibs=dec(dinheiro(ibsPreciso));
   const total=dinheiro(dec(totalComercial).plus(cbs).plus(ibs));
   const preco=num(dec(total).div(q)),ajuste=dec(total).minus(totalComercial).minus(cbs).minus(ibs).div(q);
-  return {total,resultado:{preco,receita:comercial.receita,icms:comercial.icms,is:comercial.is,simples:comercial.simples,baseIcms:comercial.baseIcms,precoComercial:num(dec(totalComercial).div(q)),baseCbsIbs:num(base.div(q)),cbs:num(cbs.div(q)),ibs:num(ibs.div(q)),tributos:num(dec(comercial.icms).plus(comercial.is).plus(cbs.div(q)).plus(ibs.div(q))),aliquotas:{...comercial.aliquotas,cbs:fiscal.taxas.cbs,ibs:fiscal.taxas.ibs},fiscalTabela:fiscal,icmsIncluidoNoComercial:true,ajusteFechamento:num(ajuste),f:comercial.receita?num(dec(preco).div(comercial.receita)):comercial.f}};
+  return {total,resultado:{preco,receita:comercial.receita,icms:comercial.icms,is:comercial.is,simples:comercial.simples,baseIcms:comercial.baseIcms,precoComercial:num(dec(totalComercial).div(q)),baseCbsIbs:num(base.div(q)),cbs:num(cbs.div(q)),ibs:num(ibs.div(q)),cbsPreciso:num(cbsPreciso.div(q)),ibsPreciso:num(ibsPreciso.div(q)),fechamentoTributos:'por-item',quantidadeFechamento:quantidade,tributos:num(dec(comercial.icms).plus(comercial.is).plus(cbs.div(q)).plus(ibs.div(q))),aliquotas:{...comercial.aliquotas,cbs:fiscal.taxas.cbs,ibs:fiscal.taxas.ibs},fiscalTabela:fiscal,icmsIncluidoNoComercial:true,ajusteFechamento:num(ajuste),f:comercial.receita?num(dec(preco).div(comercial.receita)):comercial.f}};
  }
  function calcularTabela(p,t,regra,parametro,override=null){
   exigir([undefined,'atual','sem_cbs_ibs'].includes(regra.modoPrecificacao),'Modalidade de precificação inválida.');
@@ -383,7 +393,7 @@
   const comercial=calcularTabelaAtual(p,tSem,regra,sem,override);
   const projetado=projetarComIcmsIncluido(comercial,fiscal),precoReforma=projetado.total,projecao=projetado.resultado;
   const multiplicador=dec(1).plus(dec(1).minus(pct(fiscal.taxas.icms)).mul(pct(fiscal.taxas.cbs).plus(pct(fiscal.taxas.ibs))));
-  return {...comercial,precoReforma,projecaoReforma:projecao,fiscalTabela:fiscal,
+  return {...comercial,precoComercial:comercial.preco,icmsIncluidoNoComercial:true,precoReforma,projecaoReforma:projecao,fiscalTabela:fiscal,
    modalidadePrecificacao:'sem_cbs_ibs',fatorReforma:projecao.f,multiplicadorReforma:num(multiplicador),
    acrescimoReforma:dinheiro(dec(precoReforma).minus(comercial.preco))};
  }

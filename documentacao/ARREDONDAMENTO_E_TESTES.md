@@ -52,3 +52,5 @@ Versão 4.1: G01–G12 cobrem a entrada e a grade. As decisões comerciais compl
 ## Revisão de 12/11/2026
 
 No pedido, o total projetado é fechado por item antes da decomposição dos tributos. O teto unitário da grade é uma referência de precificação, não uma base a multiplicar para fechar os tributos do pedido. O sugerido passa a usar `teto(teto(alvo praticado) ÷ (1 − desconto))`, preservando a meta após o arredondamento unitário. Entradas monetárias do pedido são normalizadas em centavos antes dos rateios. Os resíduos da soma apresentada continuam explícitos. Ver `AUDITORIA_CALCULOS.md` e `testes/auditoria-calculos.test.cjs`.
+
+Na modalidade comercial sem CBS/IBS, o fechamento foi padronizado por tributo do item: primeiro a base direta `preço comercial − ICMS`, depois CBS e IBS fechados individualmente em centavos, por fim `total comercial + CBS + IBS`. Os valores anteriores ao fechamento ficam disponíveis separadamente no JSON. Essa política elimina diferenças entre a soma dos tributos exibidos e o faturamento projetado. A base não utiliza o total projetado nem deduz CBS/IBS.

@@ -11,7 +11,7 @@ function CartaoTotal({titulo,valor,formula,sub,destaque=false}){
 function textoConciliacaoReforma(c){
  if(!c)return 'Revise os dados da projeção.';
  const nomes={cbs:'CBS acrescentada',ibs:'IBS acrescentado',icms:'Recomposição do ICMS',is:'Recomposição do IS',simples:'Variação do Simples'};
- return ['Total comercial '+brl(c.comercial),...c.parcelas.filter(p=>p.valor!==0).map(p=>(p.valor<0?'− ':'+ ')+nomes[p.tributo]+' '+brl(Math.abs(p.valor))),...(c.ajuste?[(c.ajuste<0?'− ':'+ ')+'Ajuste da soma exibida em centavos '+brl(Math.abs(c.ajuste))]:[]),'= Total projetado na Reforma '+brl(c.projetado),'Acréscimo total: '+brl(c.acrescimo)+'. O ICMS já está dentro do total comercial e não é somado novamente. O acréscimo contém somente CBS e IBS. O ajuste de exibição não altera os tributos internos.'].join('\n');
+ return ['Total comercial '+brl(c.comercial),...c.parcelas.filter(p=>p.valor!==0).map(p=>(p.valor<0?'− ':'+ ')+nomes[p.tributo]+' '+brl(Math.abs(p.valor))),...(c.ajuste?[(c.ajuste<0?'− ':'+ ')+'Ajuste da soma exibida em centavos '+brl(Math.abs(c.ajuste))]:[]),'= Total projetado na Reforma '+brl(c.projetado),'Acréscimo total: '+brl(c.acrescimo)+'. O ICMS já está dentro do total comercial e não é somado novamente. O acréscimo contém somente CBS e IBS. CBS e IBS fecham separadamente em centavos por item antes da soma do total.'].join('\n');
 }
 function TelaPedido({s,mudar,resultado:r,erro,mensagem,resumo,copiar,exportavel}){
  const primeiro=()=>tentativa(()=>prepararLinhaPedido(s,s.produtos[0].id)).valor||{produtoId:s.produtos[0].id,tabelaId:s.produtos[0].tabelaVendaId,quantidade:1,preco:0,descontoPct:0};

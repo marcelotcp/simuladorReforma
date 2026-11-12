@@ -99,11 +99,15 @@
       "situacao": "OK"
     },
     {
-      "id": "UI25: cartões e detalhes explicam os mesmos 807,80 do pedido projetado",
+      "id": "UI25: cartões e detalhes explicam os mesmos 807,81 do pedido projetado",
       "situacao": "OK"
     },
     {
       "id": "UI26: resumo e caixa distinguem comercial e faturamento na modalidade sem CBS/IBS",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI27: base 100 menos ICMS 18 mostra 82 em tres linhas e separa os tributos posteriores",
       "situacao": "OK"
     }
   ]

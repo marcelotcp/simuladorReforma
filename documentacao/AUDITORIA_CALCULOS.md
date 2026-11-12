@@ -26,10 +26,9 @@ Branch: `feature/precificacao-sem-cbs-ibs`. A main não foi alterada nesta revis
 | Total comercial | R$ 739,30 |
 | CBS da projeção, exibida | + R$ 67,90 |
 | IBS da projeção, exibido | + R$ 0,61 |
-| Ajuste da soma exibida em centavos | − R$ 0,01 |
-| Total projetado | **R$ 807,80** |
+| Total projetado | **R$ 807,81** |
 
-CBS + IBS internos, fechados ao final: R$ 68,50. A soma dos dois tributos apresentados individualmente é R$ 68,51; a memória informa o resíduo de − R$ 0,01. Ele é somente de exibição, não altera as bases ou o tributo preciso.
+CBS e IBS são fechados separadamente em centavos por item: R$ 67,90 + R$ 0,61 = R$ 68,51. O total projetado é R$ 739,30 + R$ 68,51 = R$ 807,81. A base é R$ 739,30 − ICMS já incluído; não se subtraem CBS/IBS para formar essa base e não há ajuste artificial nela.
 
 ## Verificação
 
@@ -55,4 +54,10 @@ A revisão verifica a matemática e a consistência das telas dentro das premiss
 
 ## Regressão do ICMS já incluído
 
-A versão anterior projetava R$ 822,84 ao recompor o ICMS. Esse comportamento foi removido da modalidade sem CBS/IBS. O ICMS do exemplo permanece R$ 133,074 internamente (R$ 133,07 na apresentação), com base comercial de R$ 739,30. Somente CBS e IBS aumentam o total para R$ 807,80. N07–N09 verificam a preservação do ICMS, descontos/rateios, as duas posições da opção histórica de bases e o Simples total. A opção de bases cruzadas fica desabilitada nessa modalidade e permanece disponível no modo Atual para comparação.
+A versão anterior projetava R$ 822,84 ao recompor o ICMS. Esse comportamento foi removido da modalidade sem CBS/IBS. O ICMS do exemplo permanece R$ 133,074 internamente (R$ 133,07 na apresentação), com base comercial de R$ 739,30. Somente CBS e IBS aumentam o total para R$ 807,81. N07–N09 verificam a preservação do ICMS, descontos/rateios, as duas posições da opção histórica de bases e o Simples total. A opção de bases cruzadas fica desabilitada nessa modalidade e permanece disponível no modo Atual para comparação.
+
+## Base direta e fechamento dos tributos
+
+A memória da modalidade comercial tem exatamente três etapas: preço comercial, ICMS incluído e base de CBS/IBS. Exemplo: R$ 100,00 − R$ 18,00 = R$ 82,00. Em seguida, CBS = arredondar(82 × 11,2%) = R$ 9,18; IBS = arredondar(82 × 0,1%) = R$ 0,08; total = R$ 109,26. Não usar o total projetado como preço de entrada da base e não subtrair CBS/IBS dessa base.
+
+N10 e UI27 conferem a composição de três linhas e a ausência de deduções de CBS/IBS ou de ajustes nessa memória. Os valores antes do fechamento permanecem no JSON como `cbsPreciso` e `ibsPreciso`; os campos `cbs` e `ibs` da projeção representam os valores fechados por item, divididos pela quantidade para referência unitária. O modelo Atual mantém sua política histórica de comparação.

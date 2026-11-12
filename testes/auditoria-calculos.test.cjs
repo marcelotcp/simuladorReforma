@@ -12,19 +12,19 @@ function pedidoExemplo(){const s=inicial();s.regra.modoPrecificacao='sem_cbs_ibs
 function conferirConciliacao(c){perto(money(c.comercial+c.parcelas.reduce((s,p)=>s+p.valor,0)+c.ajuste),c.projetado);perto(money(c.projetado-c.comercial),c.acrescimo);}
 // Oráculo de rateio com inteiros/BigInt, independente do Decimal do motor.
 function rateioInteiro(total,subtotais){const cents=BigInt(Math.round(money(total)*100)),pesos=subtotais.map(v=>BigInt(Math.round(v*100))),soma=pesos.reduce((s,v)=>s+v,0n);if(!soma)return pesos.map(()=>0);const partes=pesos.map((v,i)=>({i,q:cents*v/soma,r:cents*v%soma}));let sobra=cents-partes.reduce((s,p)=>s+p.q,0n);for(const p of [...partes].sort((a,b)=>a.r===b.r?a.i-b.i:a.r>b.r?-1:1)){if(sobra<=0n)break;p.q++;sobra--;}return partes.map(p=>Number(p.q)/100);}
-teste('A01: caso da captura fecha 739,30 → 807,80, com tributos da mesma origem',()=>{
+teste('A01: caso da captura fecha 739,30 → 807,81, com tributos da mesma origem',()=>{
  const r=pedidoExemplo(),i=r.itens[0],f=i.resultado.projecaoReforma;
- assert.equal(r.total,739.30);assert.equal(r.totalReforma,807.80);assert.equal(r.acrescimoReforma,68.50);
- assert.equal(money(r.cbs),67.90);assert.equal(money(r.ibs),.61);assert.equal(r.reforma,68.50);
- perto(f.preco*i.l.quantidade,807.80);perto(f.icms*i.l.quantidade,133.074);
+ assert.equal(r.total,739.30);assert.equal(r.totalReforma,807.81);assert.equal(r.acrescimoReforma,68.51);
+ assert.equal(money(r.cbs),67.90);assert.equal(money(r.ibs),.61);assert.equal(r.reforma,68.51);
+ perto(f.preco*i.l.quantidade,807.81);perto(f.icms*i.l.quantidade,133.074);
  conferirConciliacao(r.conciliacaoReforma);conferirConciliacao(i.conciliacaoReforma);
- assert.equal(r.conciliacaoReforma.ajuste,-.01);
+ assert.equal(r.conciliacaoReforma.ajuste,0);
 });
 teste('A02: bases, tributos e conciliação do item usam o total projetado fechado',()=>{
  const r=pedidoExemplo(),i=r.itens[0],f=i.resultado.projecaoReforma;
  const memoria=M.memoriaTributos(f,inicial().parametros['2027'],10);
  for(const l of memoria)perto(l.valorItem,r[l.chave]);
- const ponte=M.conciliarPrecoBase(f,10);perto(ponte.etapas[0].valorItem,i.totalReforma);
+ const ponte=M.conciliarPrecoBase(f,10);perto(ponte.etapas[0].valorItem,i.final);assert.equal(ponte.origem,'preco-comercial');assert.equal(ponte.etapas.length,3);
  perto(f.receita+f.icms+f.cbs+f.ibs+f.is+(f.ajusteFechamento||0),f.preco);
 });
 teste('A03: matriz de 384 cenários confere fatores, preços, despesas e margens por equações independentes',()=>{
@@ -38,7 +38,7 @@ teste('A03: matriz de 384 cenários confere fatores, preços, despesas e margens
   const a=new D(par.icms).div(100),c=new D(par.cbs).mul(mult).div(100),b=new D(par.ibs).mul(mult).div(100),seletivo=new D(par.is).div(100);
   const fator=(c,b)=>modelo==='original'?new D(1).plus(a.div(new D(1).minus(a))).plus(c).plus(b):incluir?new D(1).plus(seletivo).mul(new D(1).plus(c).plus(b)).div(new D(1).minus(a)):new D(1).plus(seletivo).div(new D(1).minus(a)).plus(new D(1).plus(seletivo).mul(c.plus(b)));
   const integral=simples?new D(1).div(.94):fator(c,b),comercial=simples||modo==='atual'?integral:fator(new D(0),new D(0));
-  const final=new D(preco).mul(qtd).minus(desconto).plus(outras),projetado=simples||modo==='atual'?money(final):money(final.mul(new D(1).plus(new D(1).minus(a).mul(c.plus(b)))));
+  const final=new D(preco).mul(qtd).minus(desconto).plus(outras),projetado=simples||modo==='atual'?money(final):money(final.plus(money(final.mul(new D(1).minus(a)).mul(c))).plus(money(final.mul(new D(1).minus(a)).mul(b))));
   assert.equal(item.final,money(final));assert.equal(item.totalReforma,projetado);assert.equal(r.totalReforma,money(projetado+5));
   const receita=final.div(comercial),custo=new D(p.entrada.custoBruto).minus(p.entrada.desconto).minus(p.entrada.creditoIcms).minus(p.entrada.creditoCbs).minus(p.entrada.creditoIbs).plus(new D(t.freteTonelada).mul(p.entrada.pesoKg).div(1000)).mul(qtd);
   const lucro=receita.minus(custo).minus(final.mul(new D(t.operacional).plus(t.comissao).div(100)));
@@ -90,7 +90,7 @@ teste('A10: limites de meio centavo usam multiplicador decimal sem fatores seria
  for(const modelo of ['original','encadeado'])for(const incluir of [false,true])for(const cbs of [0.9,1,11.2])for(const preco of [.01,.50,1.50,5,15,25,75,123.45]){
   const s=inicial(),p=s.produtos[0];p.faixas=[{de:1,pct:0}];s.regra.modoPrecificacao='sem_cbs_ibs';const par={...s.parametros[s.ano],modelo,incluirNovosNoIcms:incluir,cbs,ibs:0};
   const novos=new D(cbs).div(100),multiplicador=new D(1).plus(new D('.82').mul(novos));
-  const esperado=money(new D(preco).mul(multiplicador)),r=M.calcularPedido({desconto:0,itens:[{produtoId:'p1',quantidade:1,preco}]},[p],s.regra,{[s.ano]:par},s.ano);assert.equal(r.totalReforma,esperado);
+  const esperado=money(new D(preco).plus(money(new D(preco).mul('.82').mul(novos)))),r=M.calcularPedido({desconto:0,itens:[{produtoId:'p1',quantidade:1,preco}]},[p],s.regra,{[s.ano]:par},s.ano);assert.equal(r.totalReforma,esperado);
  }
 });
 fs.writeFileSync(path.join(__dirname,'resultados-auditoria.json'),JSON.stringify({autoria:'MARCELO CLEITON',escopo:'Conferência matemática do modelo configurado; não certifica legislação ou emissão fiscal.',cenarios,rateiosConferidos:1000,formacoesConferidas:240,resultados},null,2));
