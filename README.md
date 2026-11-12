@@ -196,4 +196,8 @@ Os avisos usam texto e ícones além das cores. A entrada dos cenários e a ênf
 
 ### Revisão dos cálculos e das memórias
 
-Correções no fechamento do pedido projetado, bases e tributos, proteção da meta no preço sugerido, normalização monetária e identificação de comercial/faturamento no caixa, resumo e memórias. A conciliação mostra a passagem entre os dois totais, incluindo a recomposição do ICMS e resíduos de apresentação. Ver `documentacao/AUDITORIA_CALCULOS.md`. A suíte de auditoria usa referências independentes e inclui o caso de R$ 739,30 → R$ 822,84.
+Correções no fechamento do pedido projetado, bases e tributos, proteção da meta no preço sugerido, normalização monetária e identificação de comercial/faturamento no caixa, resumo e memórias. A conciliação mostra a passagem entre os dois totais, preservando o ICMS já incluído e explicitando resíduos de apresentação. Ver `documentacao/AUDITORIA_CALCULOS.md`. A suíte de auditoria usa referências independentes e inclui o caso de R$ 739,30 → R$ 807,80.
+
+### ICMS já incluído no preço comercial
+
+Na modalidade sem CBS/IBS, a projeção mantém a base e o valor do ICMS do preço comercial após descontos/rateios. Acrescenta somente CBS e IBS sobre a base sem ICMS. A opção histórica de inclusão dos novos tributos na base do ICMS não é aplicada nessa modalidade. Grade, pedido, E se, caixa e memórias usam essa mesma regra. Exemplo: preço comercial R$ 100,00, ICMS 18% já incluído, CBS 11,2% e IBS 0,1% → projeção R$ 109,27.

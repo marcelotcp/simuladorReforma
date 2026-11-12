@@ -137,12 +137,10 @@
    const final=dinheiro(dec(x.subtotal).minus(rateios[k]).plus(rateiosOutras[k])),unitario=dec(final).div(x.l.quantidade),r=calcularProduto(x.p,regra,x.par,num(unitario));
    const unitarioComercial=dec(x.subtotal).minus(rateios[k]).div(x.l.quantidade);
    const desconto=x.r.preco?num(dec(1).minus(unitarioComercial.div(x.r.preco)).mul(100)):0;
-   const totalReforma=r.projecaoReforma?dinheiro(dec(final).mul(multiplicadorReforma(r.fiscalTabela,x.par))):final;
-   // O item fechado é a origem dos tributos: não multiplicar o teto unitário
-   // da grade, pois ele pode superar o total projetado em vários centavos.
-   if(r.projecaoReforma){
-    const ft=r.fiscalTabela,contexto={...x.par,...ft.taxas},produtoFiscal={...x.p,tratamento:'padrao',seletivo:ft.taxas.is>0};
-    r.projecaoReforma={...decompor(num(dec(totalReforma).div(x.l.quantidade)),produtoFiscal,contexto),fiscalTabela:ft};
+   const projecao=r.projecaoReforma?projetarComIcmsIncluido(r,r.fiscalTabela,x.l.quantidade,final):null;
+   const totalReforma=projecao?projecao.total:final;
+   if(projecao){
+    r.projecaoReforma=projecao.resultado;
     r.precoReforma=num(dec(totalReforma).div(x.l.quantidade));
     r.acrescimoReforma=num(dec(r.precoReforma).minus(r.preco));
    }
@@ -200,7 +198,7 @@
   const fonte=r.fiscalTabela?.fonte||parametro.fonte,atualizado=r.fiscalTabela?.atualizado||parametro.atualizado;
   const baseIcmsCompleta=parametro.modelo!=='original'&&parametro.incluirNovosNoIcms;
   const dados=[
-   ['icms','ICMS',r.baseIcms,baseIcmsCompleta?'Base ICMS = preço final (inclui o próprio ICMS e CBS/IBS no cenário)':'Base ICMS = (receita sem tributos modelados + IS) ÷ (1 − alíquota ICMS)',baseIcmsCompleta?String(r.preco):'('+r.receita+' + '+(r.is||0)+') ÷ (1 − '+num(pct(r.aliquotas.icms))+')'],
+   ['icms','ICMS',r.baseIcms,r.icmsIncluidoNoComercial?'Base ICMS = preço comercial, que já contém o ICMS; CBS/IBS acrescentados não aumentam esse valor':baseIcmsCompleta?'Base ICMS = preço final (inclui o próprio ICMS e CBS/IBS no cenário)':'Base ICMS = (receita sem tributos modelados + IS) ÷ (1 − alíquota ICMS)',r.icmsIncluidoNoComercial?String(r.precoComercial):baseIcmsCompleta?String(r.preco):'('+r.receita+' + '+(r.is||0)+') ÷ (1 − '+num(pct(r.aliquotas.icms))+')'],
    ['cbs','CBS',r.baseCbsIbs,'Base CBS = receita sem tributos modelados + IS',r.receita+' + '+(r.is||0)],
    ['ibs','IBS',r.baseCbsIbs,'Base IBS = receita sem tributos modelados + IS',r.receita+' + '+(r.is||0)],
    ['is','IS',r.receita,'Base IS de referência do modelo = receita antes do IS',String(r.receita)]
@@ -362,29 +360,31 @@
   return {...decomposicao,preco:consumidor,precoConsumidor:consumidor,precoReforma:num(receita),receita:num(receita),precoMinimoComercial:minimoComercial,sugerido,f:num(f),alvo:num(alvoPraticado.div(f)),antesDesconto:num(alvoPraticado.div(f)),custo:num(custo),cpv:num(cpv),frete:num(frete),pesoKg:num(peso),operacional:num(operacional),comissao:num(comissao),simples:t.regime==='simples'?num(preco.minus(receita)):0,lucro:num(lucro),mOper:margem,mVenda:preco.gt(0)?num(lucro.div(preco).mul(100)):0,markup:cpv.gt(0)?num(lucro.div(cpv).mul(100)):null,minimo:pisoTecnico,pisoTecnico,equilibrio,margemNoMinimo:margemMin,lucroNoMinimo:num(lucroMin),descontoMax:preco.gt(0)?Math.max(0,piso(um.minus(dec(pisoTecnico).div(preco)).mul(100))):0,descontoBase:0,descontoFinalEquivalente:0,status:cpv.lte(0)?'pendente':lucro.lt(0)?'prejuizo':margem+1e-9<regra.minMargem?'abaixo':'seguro',statusMinimo:cpv.lte(0)?'pendente':lucroMin.lt(0)?'prejuizo':margemMin+1e-9<regra.minMargem?'abaixo':'seguro',fiscalTabela:fiscal,tabelaId:t.id,percentuais:{desconto:t.desconto,margem:t.margem,operacional:t.operacional,comissao:t.comissao,simples:t.simples},denominador:num(denom),despesasFracao:num(despesa)};
  }
  // Modalidade opcional: preco comercial exclui CBS/IBS; a projecao os inclui.
- function multiplicadorReforma(fiscal,parametro){
-  const novos=pct(fiscal.taxas.cbs).plus(pct(fiscal.taxas.ibs));
-  // Razão algébrica dos fatores, sem dividir fatores já convertidos em Number.
-  // Isso preserva os empates exatos de meio centavo no fechamento do preço.
-  return parametro.modelo==='encadeado'&&parametro.incluirNovosNoIcms?dec(1).plus(novos):dec(1).plus(dec(1).minus(pct(fiscal.taxas.icms)).mul(novos));
+ function projetarComIcmsIncluido(comercial,fiscal,quantidade=1,totalComercial=num(dec(comercial.preco).mul(quantidade))){
+  // Preço comercial já contém ICMS/IS. Preservá-los e acrescentar somente
+  // CBS/IBS sobre a base sem ICMS. Não recalcular ICMS sobre o faturamento.
+  const q=dec(quantidade),base=dec(totalComercial).minus(dec(comercial.icms).mul(q));
+  const cbs=base.mul(pct(fiscal.taxas.cbs)),ibs=base.mul(pct(fiscal.taxas.ibs));
+  const total=dinheiro(dec(totalComercial).plus(cbs).plus(ibs));
+  const preco=num(dec(total).div(q)),ajuste=dec(total).minus(totalComercial).minus(cbs).minus(ibs).div(q);
+  return {total,resultado:{preco,receita:comercial.receita,icms:comercial.icms,is:comercial.is,simples:comercial.simples,baseIcms:comercial.baseIcms,precoComercial:num(dec(totalComercial).div(q)),baseCbsIbs:num(base.div(q)),cbs:num(cbs.div(q)),ibs:num(ibs.div(q)),tributos:num(dec(comercial.icms).plus(comercial.is).plus(cbs.div(q)).plus(ibs.div(q))),aliquotas:{...comercial.aliquotas,cbs:fiscal.taxas.cbs,ibs:fiscal.taxas.ibs},fiscalTabela:fiscal,icmsIncluidoNoComercial:true,ajusteFechamento:num(ajuste),f:comercial.receita?num(dec(preco).div(comercial.receita)):comercial.f}};
  }
  function calcularTabela(p,t,regra,parametro,override=null){
   exigir([undefined,'atual','sem_cbs_ibs'].includes(regra.modoPrecificacao),'Modalidade de precificação inválida.');
   if(regra.modoPrecificacao!=='sem_cbs_ibs')return calcularTabelaAtual(p,t,regra,parametro,override);
   const fiscal=fiscalTabela(p,t,parametro);
-  if(fiscal.regime==='simples')return calcularTabelaAtual(p,t,regra,parametro,override);
+  if(fiscal.regime==='simples'){
+   const atual=calcularTabelaAtual(p,t,regra,parametro,override);
+   return {...atual,precoReforma:atual.preco,acrescimoReforma:0};
+  }
   const ano=fiscal.ano;
   const sem={...parametro,cbs:0,ibs:0};
   const tSem={...t,fiscal:{...t.fiscal,[ano]:{...t.fiscal?.[ano],cbs:0,ibs:0}}};
   const comercial=calcularTabelaAtual(p,tSem,regra,sem,override);
-  const contexto={...parametro,...fiscal.taxas};
-  const produtoFiscal={...p,tratamento:'padrao',seletivo:fiscal.taxas.is>0};
-  const fatorIntegral=fator(produtoFiscal,contexto);
-  const multiplicador=multiplicadorReforma(fiscal,parametro);
-  const precoReforma=teto(dec(comercial.preco).mul(multiplicador));
-  const projecao={...decompor(precoReforma,produtoFiscal,contexto),fiscalTabela:fiscal};
+  const projetado=projetarComIcmsIncluido(comercial,fiscal),precoReforma=projetado.total,projecao=projetado.resultado;
+  const multiplicador=dec(1).plus(dec(1).minus(pct(fiscal.taxas.icms)).mul(pct(fiscal.taxas.cbs).plus(pct(fiscal.taxas.ibs))));
   return {...comercial,precoReforma,projecaoReforma:projecao,fiscalTabela:fiscal,
-   modalidadePrecificacao:'sem_cbs_ibs',fatorReforma:num(fatorIntegral),multiplicadorReforma:num(multiplicador),
+   modalidadePrecificacao:'sem_cbs_ibs',fatorReforma:projecao.f,multiplicadorReforma:num(multiplicador),
    acrescimoReforma:dinheiro(dec(precoReforma).minus(comercial.preco))};
  }
  const api={descontoPedido,conciliarReforma,conciliarPrecoBase,memoriaTributos,prepararCenario,dinheiro,teto,piso,validarFaixas,aliquotas,fator:(p,s)=>num(fator(p,s)),decompor,calcularProduto,faixa,ratear,calcularPedido,calcularPedidoComercial,calcularCaixa,validarImportacao,calcularEntrada,fiscalTabela,calcularTabela};

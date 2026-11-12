@@ -283,7 +283,7 @@ ${p.tabelasPreco?.some(t=>M.fiscalTabela(p,t,param).alterado)&&html`<div class="
 <${Campo} titulo="Fator restante após redução de 60%" valor=${param.fatorReduzida} alterar=${v=>par('fatorReduzida',v)} dica="0,4 significa aplicar 40% da taxa de referência. Não arredondar a alíquota efetiva antes do cálculo."/>
 </div>
 <label class="checkrow">
-<input type="checkbox" checked=${param.incluirNovosNoIcms} onChange=${e=>par('incluirNovosNoIcms',e.target.checked)}/>Incluir CBS/IBS na base do ICMS (modelo encadeado)</label>
+<input type="checkbox" checked=${s.regra.modoPrecificacao==='sem_cbs_ibs'?false:param.incluirNovosNoIcms} disabled=${s.regra.modoPrecificacao==='sem_cbs_ibs'} onChange=${e=>par('incluirNovosNoIcms',e.target.checked)}/>Incluir CBS/IBS na base do ICMS (cenário do modo Atual)</label>${s.regra.modoPrecificacao==='sem_cbs_ibs'&&html`<p class="muted">Na modalidade comercial sem CBS/IBS, o preço informado já contém ICMS. A projeção preserva esse ICMS e acrescenta somente CBS e IBS; a hipótese acima não é aplicada.</p>`}
 <div class="grid three">
 <${Campo} titulo="Início da vigência do cenário" tipo="date" valor=${param.inicio} alterar=${v=>par('inicio',v)}/>
 <${Campo} titulo="Fim da vigência do cenário" tipo="date" valor=${param.fim} alterar=${v=>par('fim',v)}/>
