@@ -1,0 +1,38 @@
+/* MARCELO CLEITON · © 2026 Marcelo Cleiton. Alertas do comparativo de preços. */
+.sensitivity-workbench{display:grid;gap:16px;min-width:0}
+.sensitivity-workbench>.panel,.sensitivity-workbench>.notice{margin:0}
+.sensitivity-heading h2{font-size:24px;margin:4px 0 8px}
+.sensitivity-heading .field{max-width:360px;margin:16px 0 10px}
+.sensitivity-heading p:last-child{margin-bottom:0}
+.sensitivity-status{animation:sensitivity-enter .24s ease-out both}
+.sensitivity-status.bad::before,.sensitivity-status.warn::before{animation:sensitivity-attention .7s ease-in-out 2}
+.sensitivity-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sensitivity-card{display:flex;align-items:flex-start;flex-direction:column;gap:8px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}
+.sensitivity-card>strong{font:500 22px 'IBM Plex Mono',monospace;letter-spacing:-.5px}
+.sensitivity-counts{display:flex;flex-wrap:wrap;gap:6px}
+.sensitivity-scenarios{padding:0;overflow:hidden}
+.sensitivity-scenarios h2{font-size:16px;margin:0}
+.sensitivity-table{font-size:12px;min-width:840px}
+.sensitivity-table td,.sensitivity-table th{vertical-align:middle;padding:12px 10px}
+.sensitivity-table thead th{background:var(--field);border-bottom:2px solid var(--line);font-size:11px}
+.sensitivity-table th[scope=row]{background:transparent;font-weight:500;min-width:140px}
+.sensitivity-table th[scope=row]>.badge{display:flex;width:fit-content;margin-top:5px}
+.sensitivity-row.prejuizo{background:color-mix(in srgb,var(--redbg) 65%,var(--panel))}
+.sensitivity-row.abaixo,.sensitivity-row.pendente{background:color-mix(in srgb,var(--amberbg) 65%,var(--panel))}
+.sensitivity-row.prejuizo>th{box-shadow:inset 3px 0 var(--red)}
+.sensitivity-row.abaixo>th,.sensitivity-row.pendente>th{box-shadow:inset 3px 0 var(--amber)}
+.sensitivity-row.seguro>th{box-shadow:inset 3px 0 var(--green)}
+.sensitivity-row.current>th>strong{border-bottom:2px solid var(--blue);padding-bottom:3px}
+.sensitivity-result{font-weight:600;white-space:nowrap}
+.sensitivity-table td:last-child{min-width:158px}
+.sensitivity-table .row{gap:5px;flex-wrap:nowrap}
+.sensitivity-table .btn.small.button-with-icon{font-size:11px;min-height:36px;padding:7px 9px;white-space:nowrap}
+.sensitivity-detail .formula{margin-top:12px}
+.sensitivity-row{animation:sensitivity-enter .24s ease-out both;animation-delay:var(--scenario-delay,0ms)}
+@keyframes sensitivity-enter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sensitivity-attention{50%{transform:scale(1.14)}}
+@media(min-width:1500px){.sensitivity-summary{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){.sensitivity-heading h2{font-size:21px}.sensitivity-card{padding:13px}.sensitivity-card>strong{font-size:18px}.sensitivity-table .btn.small.button-with-icon{min-height:44px}.sensitivity-table .icon-button{min-height:44px!important;height:44px;min-width:44px}.sensitivity-heading .badge{max-width:100%}}
+.mobilePreview .sensitivity-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(prefers-reduced-motion:reduce){.sensitivity-status,.sensitivity-status::before,.sensitivity-row{animation:none}}
+@media print{.sensitivity-status,.sensitivity-status::before,.sensitivity-row{animation:none}.sensitivity-table{min-width:0}}

@@ -364,39 +364,7 @@ ${r&&html`<section class="panel">
 </div>
 <${Detalhes} linhas=${['Créditos hipotéticos = '+brl(p.clienteCredito.icms)+' + '+brl(p.clienteCredito.cbs)+' + '+brl(p.clienteCredito.ibs)+' = '+brl(cr),'Custo após créditos = '+brl(r.preco)+' − '+brl(cr)+' = '+brl(custo),'Revenda sem tributos de saída = '+brl(custo)+' × (1 + '+pc(p.clienteMarkup)+') = '+brl(custo*(1+p.clienteMarkup/100))]}/>`})()}</section>
 `:html`<div class="notice bad">Corrija os dados de cálculo antes de simular créditos e caixa.</div>`;
- const sensView=r?html`<section class="panel">
-<h2>E se eu mudar o preço?</h2>
-<p class="muted">Cada cenário recalcula os mesmos tributos, custos e três margens. Use o botão para adotar um preço.</p>
-<div class="tablewrap">
-<table>
-<thead>
-<tr>
-<th>Variação</th>
-<th>Preço</th>
-<th>Resultado</th>
-<th>Margem/venda</th>
-<th>Margem/operação</th>
-<th>Retorno/CPV</th>
-<th>Ação</th>
-</tr>
-</thead>
-<tbody>${[-20,-15,-10,-5,0,5,10,15,20].map(v=>{const q=M.calcularProduto(p,s.regra,param,M.dinheiro(r.preco*(1+v/100)));return html`<tr key=${v}>
-<td>${v>0?'+':''}${v}%</td>
-<td>${brl(q.preco)}</td>
-<td>${brl(q.lucro)}</td>
-<td>${pc(q.mVenda)}</td>
-<td>${pc(q.mOper)}</td>
-<td>${pc(q.markup)}</td>
-<td>
-<${Botao} class="btn small" onClick=${()=>{up('preco',q.preco);mudar(x=>x.aba='preco')}}>Usar ${brl(q.preco)}<//>
-
-</td>
-</tr>`})}</tbody>
-</table>
-</div>
-<${Detalhes} linhas=${['Preço alternativo = preço atual '+brl(r.preco)+' × (1 + variação).','Receita = preço alternativo ÷ '+fmt(r.f,4)+'; resultado = receita − '+brl(r.custo)+'.','As três margens usam os denominadores descritos no glossário.',...linhasCalc.slice(-6)]}/>
-</section>
-`:html`<div class="notice bad">Corrija o produto para simular preços.</div>`;
+ const sensView=html`<${TelaSensibilidade} key=${p.id+'-'+p.tabelaVendaId+'-'+s.ano} s=${s} mudar=${mudar} mensagem=${setMensagem}/>`;
  const pedidoView=html`<${TelaPedido} s=${s} mudar=${mudar} resultado=${pr} erro=${pedido.erro} mensagem=${setMensagem} resumo=${resumo} copiar=${copiar} exportavel=${exportavel}/>`;
  const dadosModelo={autoria:AUTORIA,versaoModelo:4,entrada:{produto:p,contexto:s.contexto,pedido:s.pedido},parametros:{horizonte:s.ano,fiscal:param,comercial:s.regra},resultado:{produto:r,basesTributarias:r?M.memoriaTributos(r,param):null,conciliacaoBase:r?M.conciliarPrecoBase(r):null,basesPorItem:pr?.itens.map(x=>({produtoId:x.p.id,quantidade:x.l.quantidade,bases:M.memoriaTributos(x.resultado,param,x.l.quantidade),conciliacaoBase:M.conciliarPrecoBase(x.resultado,x.l.quantidade)})),erro:calc.erro,pedido:pr,erroPedido:pedido.erro,caixa:credito.valor},politicas:{arredondamento:'Decimal 32 dígitos; half-up para valores comerciais; teto para sugerido/mínimo; piso para desconto seguro; rateio maiores restos',validacaoFiscal:'Responsável tributário deve validar fontes, enquadramento e regras aplicáveis.'}};
  const estudoView=html`<section class="panel">
