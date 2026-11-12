@@ -81,6 +81,22 @@
     {
       "id": "UI20: concilia preço até a base com descontos e rateios no pedido",
       "situacao": "OK"
+    },
+    {
+      "id": "UI21: E se distingue prejuízo, atenção e segurança sem alterar o preço",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI22: E se detalha e aplica somente na tabela escolhida, avisando sobre prejuízo",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI23: E se bloqueia adoção sem custo e apresenta erro fiscal sem quebrar a tela",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI24: E se separa preço comercial da projeção e aplica somente o comercial",
+      "situacao": "OK"
     }
   ]
 }

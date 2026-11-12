@@ -13,6 +13,8 @@ MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária 
 
 A mesma aplicação contém as abas de precificação e pedido, sempre no modo Gestor.
 
+As áreas ficam no menu lateral esquerdo. No computador, o botão “Recolher menu lateral” mantém apenas os ícones e libera espaço para as tabelas; “Expandir menu lateral” restaura os rótulos. No celular e na prévia de celular, “Abrir menu” mostra a lista vertical; escolher uma área fecha o menu. A navegação não aparece na impressão.
+
 A versão web carrega React, htm, Decimal.js, fontes IBM Plex e a tabela NCM de arquivos locais em docs/assets. Não depende de CDN. Os cálculos e a interface funcionam sem CDN ou conexão. Links legais e WhatsApp precisam de internet. Não há servidor, implantação remota ou envio automático de pedidos.
 
 ## Preservar o trabalho
@@ -185,3 +187,9 @@ No pedido, a composição comercial aparece antes: bruto do item − desconto do
 Cabeçalhos de seção usam faixa de fundo, marcador lateral e separador para identificar o início das tabelas; rodapés discretos indicam seu término. A precificação mantém o alerta agregado apenas quando há pendências. Instruções gerais passam para a ajuda do cabeçalho e para o glossário. Selecionar tabela, aplicar sugerido e consultar/remover permanecem disponíveis por ícones na mesma linha dos valores. A densidade de desktop reduz alturas sem reduzir os alvos de toque no celular.
 
 Referências de tema: Primer Theme Reference (https://primer.style/product/getting-started/react/theme-reference/) e Color in Windows (https://learn.microsoft.com/windows/apps/design/style/color). Adaptação ao ERP, sem pretender reproduzir integralmente a interface desses produtos.
+
+### Alertas na análise “E se…”
+
+O comparativo usa a tabela de venda selecionada e o mesmo motor da precificação. Cada cenário mostra resultado por unidade, três margens e situação: vermelho para prejuízo, amarelo para margem abaixo do mínimo ou custo pendente, verde para dentro da política. O preço atual, o equilíbrio e o piso técnico têm identificação própria. “Detalhar” abre a composição do resultado e as bases tributárias do cenário; “Usar preço” altera somente a tabela selecionada. Cenários com custo pendente não podem ser adotados. Comparar não altera o preço. A análise é anterior aos descontos e rateios do pedido.
+
+Os avisos usam texto e ícones além das cores. A entrada dos cenários e a ênfase do aviso têm animações breves, desativadas por `prefers-reduced-motion`. Não há pulsação contínua. Na modalidade comercial sem CBS/IBS, o comparativo separa preço comercial e preço projetado na Reforma; aplicar um cenário grava o preço comercial. Testes UI21–UI24 verificam os estados comerciais, aplicação na tabela correta, correção pelo piso técnico, pendência de custo e erro fiscal.

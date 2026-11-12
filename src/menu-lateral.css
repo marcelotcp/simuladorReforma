@@ -1,0 +1,53 @@
+/* MARCELO CLEITON · © 2026 Marcelo Cleiton. Navegação lateral do simulador. */
+@media screen {
+ .shell{max-width:1640px}
+ .application-layout{display:grid;grid-template-columns:184px minmax(0,1fr);gap:20px;align-items:start}
+ .application-layout>.layout,.application-layout main{min-width:0}
+ .application-sidebar{position:sticky;top:16px;max-height:calc(100dvh - 32px);overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}
+ .navigation-heading{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:10px;padding:2px}
+ .navigation-caption{font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+ .navigation-heading .navigation-collapse{width:30px;min-width:30px;height:32px;min-height:32px!important;background:transparent}
+ .navigation-heading .navigation-toggle{display:none!important}
+ .navigation-links{display:flex;flex-direction:column;gap:5px}
+ .navigation-links .button-with-icon{display:flex;width:100%;min-height:46px;justify-content:flex-start;gap:10px;text-align:left;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:13px;line-height:1.4;box-shadow:none}
+ .navigation-links svg{flex:none}
+ .navigation-links button:hover{background:var(--field);color:var(--text)}
+ .navigation-links button[aria-current=page]{background:var(--soft);color:var(--blue);font-weight:600;box-shadow:inset 3px 0 var(--blue)}
+ .navigation-collapsed{grid-template-columns:66px minmax(0,1fr)}
+ .navigation-collapsed .navigation-caption,.navigation-collapsed .navigation-links .button-text{display:none}
+ .navigation-collapsed .navigation-heading,.navigation-collapsed .navigation-links .button-with-icon{justify-content:center}
+ .navigation-collapsed .navigation-links .button-with-icon{padding:10px 8px}
+ .application-layout>.layout:not([style]){grid-template-columns:230px minmax(0,1fr)}
+ .mobilePreview .application-layout{display:block}
+ .mobilePreview .application-sidebar{position:static;max-height:none;margin-bottom:16px}
+ .mobilePreview .navigation-caption,.mobilePreview .navigation-collapse{display:none!important}
+ .mobilePreview .navigation-heading{margin:0}
+ .mobilePreview .navigation-heading .navigation-toggle{display:flex!important;width:100%;justify-content:flex-start;gap:10px;min-height:44px}
+ .mobilePreview .navigation-links{display:none;margin-top:10px}
+ .mobilePreview .navigation-open .navigation-links{display:flex}
+ .mobilePreview .navigation-links .button-text{display:inline}
+ .mobilePreview .navigation-links .button-with-icon{justify-content:flex-start;padding:10px 12px}
+ .mobilePreview .application-layout>.layout{grid-template-columns:minmax(0,1fr)!important}
+ .mobilePreview .application-layout .side{grid-template-columns:minmax(0,1fr)}
+}
+@media screen and (max-width:1200px) {
+ .application-layout>.layout{grid-template-columns:minmax(0,1fr)!important}
+ .application-layout .side{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .application-layout .side>.notice{grid-column:1/-1}
+ .application-layout .erp-filter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .application-layout .order-header-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media screen and (max-width:760px) {
+ .application-layout{display:block}
+ .application-sidebar{position:static;max-height:none;margin-bottom:16px}
+ .navigation-caption,.navigation-collapse{display:none!important}
+ .navigation-heading{margin:0}
+ .navigation-heading .navigation-toggle{display:flex!important;width:100%;justify-content:flex-start;gap:10px;min-height:44px}
+ .navigation-links{display:none;margin-top:10px}
+ .navigation-open .navigation-links{display:flex}
+ .navigation-collapsed .navigation-links .button-text{display:inline}
+ .navigation-collapsed .navigation-links .button-with-icon{justify-content:flex-start;padding:10px 12px}
+ .application-layout .side{grid-template-columns:minmax(0,1fr)}
+ .application-layout .erp-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media print{.application-sidebar{display:none!important}}

@@ -7,7 +7,7 @@ const erros=[];
 const c={console:{...console,error:(...a)=>erros.push(a.join(' '))},TextEncoder,TextDecoder,URLSearchParams,URL,Blob,setTimeout,clearTimeout,setInterval,clearInterval,performance,Date,Uint8Array,atob,btoa,confirm:()=>true,location:{search:''},navigator:{clipboard:{writeText:async()=>{}}},localStorage:{getItem:k=>armazenamento.get(k)||null,setItem:(k,v)=>armazenamento.set(k,v),removeItem:k=>armazenamento.delete(k)},document:{documentElement:{dataset:{},style:{setProperty(){}}},getElementById:()=>({scrollIntoView(){}}),createElement:()=>({click(){}})}};
 c.window=c;c.globalThis=c;c.self=c;
 vm.createContext(c);
-for(const nome of ['src/react.min.js','testes/scheduler.min.js','testes/react-test-renderer.min.js','src/htm.min.js','src/decimal.min.js','src/dados.js','src/ncm-dados.js','src/gestor-ui.js','src/motor.js','src/grade-dados.js','src/grade.js','src/pedido.js'])vm.runInContext(fs.readFileSync(path.join(raiz,nome),'utf8'),c,{filename:nome});
+for(const nome of ['src/react.min.js','testes/scheduler.min.js','testes/react-test-renderer.min.js','src/htm.min.js','src/decimal.min.js','src/dados.js','src/ncm-dados.js','src/gestor-ui.js','src/motor.js','src/grade-dados.js','src/grade.js','src/pedido.js','src/sensibilidade.js'])vm.runInContext(fs.readFileSync(path.join(raiz,nome),'utf8'),c,{filename:nome});
 for(const f of fs.readdirSync(path.join(raiz,'src/ncm')).sort())vm.runInContext(fs.readFileSync(path.join(raiz,'src/ncm',f),'utf8'),c);
 vm.runInContext("const inicialTeste=estadoInicial;estadoInicial=function(){const s=inicialTeste();s.produtos[3].unidade='cx 12un 6kg';return s};",c);
 c.ReactDOM={createRoot:()=>({render:elemento=>{renderizador=c.ReactTestRenderer.create(elemento)}})};
@@ -37,5 +37,41 @@ t('UI16: prejuízo gera alerta e bloqueia impressão, com correção disponível
 t('UI18: Fiscal governa tabelas e pedido, com exceção explícita e restauração',()=>{const Campo=vm.runInContext('Campo',c),campo=n=>renderizador.root.findAllByType(Campo).find(x=>x.props.titulo===n),valor=k=>renderizador.root.findByProps({id:'grade-p1-padrao-tax-'+k}).props.valor;clicar('Fiscal');campo('Regime da empresa (vendedora)').props.alterar('Regular');const reset=renderizador.root.findAllByType('button').find(x=>x.props['aria-label']==='Usar Fiscal em todas as tabelas deste produto');if(reset)reset.props.onClick();campo('Tratamento de CBS/IBS do produto').props.alterar('zero');clicar('Preço e margens');assert.equal(valor('cbs'),0);assert.equal(valor('ibs'),0);clicar('Fiscal');campo('Tratamento de CBS/IBS do produto').props.alterar('reduzida');campo('CBS de referência do cenário (%)').props.alterar(6);clicar('Preço e margens');assert.equal(valor('cbs'),2.4);renderizador.root.findByProps({id:'grade-p1-padrao-tax-cbs'}).props.alterar(3);clicar('Fiscal');campo('IBS total de referência (%)').props.alterar(2);campo('CBS de referência do cenário (%)').props.alterar(7);clicar('Preço e margens');assert.equal(valor('cbs'),3);assert.equal(valor('ibs'),.8);clicar('Usar alíquotas da aba Fiscal');assert.equal(valor('cbs'),2.8);clicar('Fiscal');campo('Regime da empresa (vendedora)').props.alterar('Simples');campo('Simples: alíquota efetiva total de estudo (%)').props.alterar(6);clicar('Preço e margens');assert.match(corpo(),/Simples total/);assert.ok(renderizador.root.findAllByType('select').find(x=>x.props['aria-label']==='Regime da tabela Tabela padrão').props.disabled);clicar('Fiscal');campo('Regime da empresa (vendedora)').props.alterar('Simples regular');clicar('Pedido');assert.match(corpo(),/híbrida ainda não implementada|ainda não é suportada/);clicar('Fiscal');campo('Regime da empresa (vendedora)').props.alterar('Regular');});
 t('UI19: detalhes mostram bases e alíquotas por imposto no preço e no pedido',()=>{clicar('Preço e margens');const B=vm.runInContext('BasesTributarias',c);assert.equal(renderizador.root.findAllByType(B).length,1);assert.match(corpo(),/Bases de cálculo por imposto/);assert.match(corpo(),/Base do item/);assert.match(corpo(),/Base CBS =/);clicar('Fiscal');assert.equal(renderizador.root.findAllByType(B).length,1);clicar('Pedido');clicar('Detalhar Pão de Queijo Congelado');assert.equal(renderizador.root.findAllByType(B).length,1);assert.equal(renderizador.root.findByType(B).props.quantidade,2);assert.match(corpo(),/Imposto do item/);});
 t('UI20: concilia preço até a base com descontos e rateios no pedido',()=>{assert.match(corpo(),/Como o preço de venda chega à base de CBS/);assert.match(corpo(),/Conferência por unidade/);assert.match(corpo(),/Como a base é encontrada/);assert.match(corpo(),/Antes dos impostos: descontos e rateios do item/);const C=vm.runInContext('CaminhoDaBase',c);assert.equal(renderizador.root.findByType(C).props.quantidade,2);assert.ok(renderizador.root.findByType(C).props.itemPedido);});
+
+function montarSensibilidade(ajustar=()=>{}){
+ const bruto=vm.runInContext('migrarGrade(estadoInicial())',c);ajustar(bruto);const s=vm.runInContext('M',c).prepararCenario(bruto);
+ const Tela=vm.runInContext('TelaSensibilidade',c),avisos=[];
+ const props={s,mudar:fn=>fn(s),mensagem:m=>avisos.push(m)};
+ const tela=c.ReactTestRenderer.create(c.React.createElement(Tela,props));
+ return {s,tela,avisos,atualizar:()=>tela.update(c.React.createElement(Tela,props))};
+}
+t('UI21: E se distingue prejuízo, atenção e segurança sem alterar o preço',()=>{
+ const {s,tela}=montarSensibilidade(),p=s.produtos.find(x=>x.id===s.selecionado),antes=JSON.stringify(s);
+ const linhas=tela.root.findAllByType('tr').filter(x=>String(x.props.class).startsWith('sensitivity-row'));
+ assert.equal(linhas.length,9);for(const status of ['prejuizo','abaixo','seguro'])assert.ok(linhas.some(x=>x.props.class.split(' ').includes(status)),status);
+ assert.equal(JSON.stringify(s),antes);assert.ok(tela.root.findAllByType('div').some(x=>x.props.role==='status'&&x.props['aria-live']==='polite'));
+ tela.unmount();
+});
+t('UI22: E se detalha e aplica somente na tabela escolhida, avisando sobre prejuízo',()=>{
+ const {s,tela,avisos,atualizar}=montarSensibilidade(),p=s.produtos.find(x=>x.id===s.selecionado),id=p.tabelaVendaId;
+ const botao=n=>tela.root.findAllByType('button').find(x=>x.props['aria-label']===n);
+ botao('Detalhar cenário -20%').props.onClick();assert.match(JSON.stringify(tela.toJSON()),/Bases de cálculo por imposto/);
+ const outras=JSON.stringify(p.tabelasPreco.filter(t=>t.id!==id));const esperado=vm.runInContext('M',c).calcularProduto(p,s.regra,s.parametros[s.ano]).preco;
+ botao('Aplicar cenário -20%').props.onClick();assert.equal(p.tabelasPreco.find(t=>t.id===id).precoConsumidor,vm.runInContext('M',c).dinheiro(esperado*.8));assert.equal(JSON.stringify(p.tabelasPreco.filter(t=>t.id!==id)),outras);assert.equal(s.aba,'preco');assert.match(avisos[0],/prejuízo/);
+ atualizar();const piso=tela.root.findAllByType('button').find(x=>x.props['aria-label']==='Aplicar piso técnico para preservar a margem');assert.ok(piso);piso.props.onClick();assert.equal(vm.runInContext('M',c).calcularProduto(p,s.regra,s.parametros[s.ano]).status,'seguro');
+ tela.unmount();
+});
+t('UI23: E se bloqueia adoção sem custo e apresenta erro fiscal sem quebrar a tela',()=>{
+ const {tela}=montarSensibilidade(s=>{const p=s.produtos.find(x=>x.id===s.selecionado);for(const k of ['custoBruto','desconto','creditoIcms','creditoCbs','creditoIbs'])p.entrada[k]=0});
+ assert.match(JSON.stringify(tela.toJSON()),/custo pendente/i);const acoes=tela.root.findAllByType('button').filter(x=>String(x.props['aria-label']).startsWith('Aplicar cenário'));assert.equal(acoes.length,9);assert.ok(acoes.every(x=>x.props.disabled));tela.unmount();
+ const invalida=montarSensibilidade(s=>s.contexto.regime='Simples regular');assert.match(JSON.stringify(invalida.tela.toJSON()),/Não foi possível simular/);assert.equal(invalida.tela.root.findAllByType('tr').length,0);invalida.tela.unmount();
+});
+t('UI24: E se separa preço comercial da projeção e aplica somente o comercial',()=>{
+ const {s,tela}=montarSensibilidade(s=>s.regra.modoPrecificacao='sem_cbs_ibs'),p=s.produtos.find(x=>x.id===s.selecionado),motor=vm.runInContext('M',c),r=motor.calcularProduto(p,s.regra,s.parametros[s.ano]);
+ assert.match(JSON.stringify(tela.toJSON()),/Preço comercial/);assert.match(JSON.stringify(tela.toJSON()),/Preço na Reforma/);
+ const botao=n=>tela.root.findAllByType('button').find(x=>x.props['aria-label']===n);botao('Detalhar cenário Preço atual').props.onClick();assert.match(JSON.stringify(tela.toJSON()),/Projeção de faturamento com CBS/);
+ assert.equal(tela.root.findAllByType(vm.runInContext('BasesTributarias',c)).length,2);
+ botao('Aplicar cenário Preço atual').props.onClick();assert.equal(p.tabelasPreco.find(t=>t.id===p.tabelaVendaId).precoConsumidor,r.preco);assert.notEqual(r.preco,r.precoReforma);tela.unmount();
+});
 fs.writeFileSync(path.join(__dirname,'resultados-interface.json'),JSON.stringify({autoria:'MARCELO CLEITON',tipo:'Renderização React sem navegador; sem certificação visual ou WCAG',resultados},null,2));
 console.log(resultados.length+' verificações de interface aprovadas.');
