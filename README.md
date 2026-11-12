@@ -13,6 +13,8 @@ MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária 
 
 A mesma aplicação contém as abas de precificação e pedido, sempre no modo Gestor.
 
+As áreas ficam no menu lateral esquerdo. No computador, o botão “Recolher menu lateral” mantém apenas os ícones e libera espaço para as tabelas; “Expandir menu lateral” restaura os rótulos. No celular e na prévia de celular, “Abrir menu” mostra a lista vertical; escolher uma área fecha o menu. A navegação não aparece na impressão.
+
 A versão web carrega React, htm, Decimal.js, fontes IBM Plex e a tabela NCM de arquivos locais em docs/assets. Não depende de CDN. Os cálculos e a interface funcionam sem CDN ou conexão. Links legais e WhatsApp precisam de internet. Não há servidor, implantação remota ou envio automático de pedidos.
 
 ## Preservar o trabalho

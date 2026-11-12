@@ -57,6 +57,7 @@ function App(){
  const inicio=useMemo(carregar,[]),[estado,setS]=useState(()=>{const o=inicio.s;o.modo='gestor';if(window.ABA_INICIAL)o.aba=window.ABA_INICIAL;return o});
  const s=useMemo(()=>M.prepararCenario(estado),[estado]);
  const [mensagem,setMensagem]=useState(inicio.aviso),[mudou,setMudou]=useState(false),[preview,setPreview]=useState(false),[codigo,setCodigo]=useState(''),[tipoExport,setTipoExport]=useState('comercial'),[candidato,setCandidato]=useState(null),[busca,setBusca]=useState('');
+ const [menuRecolhido,setMenuRecolhido]=useState(false),[menuAberto,setMenuAberto]=useState(false);
  const vendedor=false,comercial=s.tipo==='comercial',p=s.produtos.find(x=>x.id===s.selecionado)||s.produtos[0],param=s.parametros[s.ano];
  function mudar(fn){setMudou(true);setS(old=>{const next=clone(old);fn(next);if(['ufOrigem','ufDestino','regime'].some(k=>next.contexto[k]!==old.contexto[k]))for(const p of next.produtos)p.validado=false;migrarGrade(next);next.revisao=(old.revisao||0)+1;return next})}
  const up=(k,v)=>mudar(x=>{const q=x.produtos.find(y=>y.id===p.id);if(k==='preco'&&q.tabelasPreco?.length){q.tabelasPreco.find(t=>t.id===q.tabelaVendaId).precoConsumidor=v;q.preco=null}else q[k]=v}),reg=(k,v)=>mudar(x=>x.regra[k]=v),ped=(k,v)=>mudar(x=>x.pedido[k]=v);
@@ -522,7 +523,11 @@ ${!vendedor&&html`<${Botao} class="btn" onClick=${()=>{if(confirm('Restaurar tod
 <${Botao} class="btn" onClick=${()=>setPreview(!preview)}>${preview?'Tela completa':'Ver como celular'}<//>
 
 </div>
-</header>${mensagem&&html`<${Notificacao} fechar=${()=>setMensagem('')}>${mensagem}<//>`}<div class="workspace screenOnly">
+</header>${mensagem&&html`<${Notificacao} fechar=${()=>setMensagem('')}>${mensagem}<//>`}<div class=${'workspace screenOnly application-layout'+(menuRecolhido?' navigation-collapsed':'')}>
+<aside class=${'application-sidebar noPrint'+(menuAberto?' navigation-open':'')} aria-label="Menu do simulador">
+<div class="navigation-heading"><span class="navigation-caption">Áreas do simulador</span><${Botao} class="btn navigation-collapse" icone="menu" aria-label=${menuRecolhido?'Expandir menu lateral':'Recolher menu lateral'} aria-expanded=${!menuRecolhido} aria-controls="navegacao-simulador" onClick=${()=>setMenuRecolhido(!menuRecolhido)}>Menu<//><${Botao} class="btn navigation-toggle" mostrarTexto=${true} icone="menu" aria-expanded=${menuAberto} aria-controls="navegacao-simulador" onClick=${()=>setMenuAberto(!menuAberto)}>${menuAberto?'Fechar menu':'Abrir menu'}<//></div>
+<nav id="navegacao-simulador" class="navigation-links" aria-label="Áreas do simulador">${abas.map(([k,t])=>html`<${Botao} key=${k} aria-current=${abaAtiva===k?'page':undefined} onClick=${()=>{mudar(x=>x.aba=k);setMenuAberto(false)}}>${t}<//>`)}</nav>
+</aside>
 <div class="layout" style=${vendedor||gradeAtiva||s.aba==='pedido'?{gridTemplateColumns:'1fr'}:{}}>${!vendedor&&!gradeAtiva&&s.aba!=='pedido'&&html`<aside class="side" aria-label="Produtos e cenário">
 <div class="panel">${selecao}<div class="products">${s.produtos.map(x=>{const q=comercial?null:tentativa(()=>M.calcularProduto(x,s.regra,param)).valor;return html`<${Botao} key=${x.id} class=${'product '+(x.id===p.id?'selected':'')} onClick=${()=>mudar(z=>z.selecionado=x.id)}>
 <b>${x.nome}</b>
@@ -549,8 +554,7 @@ ${!vendedor&&html`<${Botao} class="btn" onClick=${()=>{if(confirm('Restaurar tod
 <p class="muted">${vendedor?'Escolha os itens, ajuste as quantidades e confira o total.':'Custos, regras e cálculos visíveis para decidir com segurança.'}</p>
 </div>
 <span class="badge">Gestor · ${s.ano}</span>
-</div>${avisoFiscal}<nav class="tabs" aria-label="Áreas do simulador">${abas.map(([k,t])=>html`<${Botao} key=${k} aria-current=${abaAtiva===k?'page':undefined} onClick=${()=>mudar(x=>x.aba=k)}>${t}<//>
-`)}</nav>${abaAtiva==='preco'&&html`<${TelaPrecificacao} s=${s} mudar=${mudar} mensagem=${setMensagem}/>`}${abaAtiva==='faixas'&&faixasView}${abaAtiva==='fiscal'&&fiscalView}${abaAtiva==='caixa'&&caixaView}${abaAtiva==='sens'&&sensView}${abaAtiva==='pedido'&&pedidoView}${abaAtiva==='estudo'&&estudoView}</main>
+</div>${avisoFiscal}${abaAtiva==='preco'&&html`<${TelaPrecificacao} s=${s} mudar=${mudar} mensagem=${setMensagem}/>`}${abaAtiva==='faixas'&&faixasView}${abaAtiva==='fiscal'&&fiscalView}${abaAtiva==='caixa'&&caixaView}${abaAtiva==='sens'&&sensView}${abaAtiva==='pedido'&&pedidoView}${abaAtiva==='estudo'&&estudoView}</main>
 </div>
 </div>
 <div class="printOnly">
