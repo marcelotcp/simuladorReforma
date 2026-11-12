@@ -74,3 +74,25 @@
  :root[data-theme=dark] .order-table .icon-button{background:transparent}
  :root[data-theme=dark] .tablewrap,:root[data-theme=dark] pre,:root[data-theme=dark] .ncm-options{scrollbar-color:#777777 var(--bg)}
 }
+/* Acentos neon discretos, restritos a valores de referência e foco.
+ * Não há animação: status fiscal e alertas conservam suas cores semânticas.
+ */
+@media screen {
+ :root[data-theme=dark]{--neon-cyan:#65e5ff;--neon-mint:#8df9b2;--focus:#65e5ff}
+ :root[data-theme=dark] .valor-calculado.suggested{
+  background:#14252c;color:var(--neon-cyan);font-weight:600;
+  box-shadow:inset 0 -1px #65e5ff66,0 0 9px #65e5ff0d;
+  text-shadow:0 0 10px #65e5ff22;
+ }
+ :root[data-theme=dark] .valor-calculado.reforma{
+  background:#14291d;color:var(--neon-mint);font-weight:600;
+  box-shadow:inset 0 -1px #8df9b266,0 0 9px #8df9b20d;
+  text-shadow:0 0 10px #8df9b222;
+ }
+ :root[data-theme=dark] .valor-calculado.suggested:hover{background:#1b3440;color:#b7f3ff;box-shadow:inset 0 -1px var(--neon-cyan),0 0 10px #65e5ff20}
+ :root[data-theme=dark] .valor-calculado.reforma:hover{background:#1b3927;color:#c4ffd8;box-shadow:inset 0 -1px var(--neon-mint),0 0 10px #8df9b220}
+ :root[data-theme=dark] .order-total-card.featured{box-shadow:inset 0 2px var(--neon-cyan),0 0 14px #65e5ff0e}
+ :root[data-theme=dark] .order-total-card.featured .total-value{color:var(--neon-cyan);text-shadow:0 0 12px #65e5ff22}
+ :root[data-theme=dark] .entry-amount strong{color:var(--neon-cyan)}
+ :root[data-theme=dark] input:focus-visible,:root[data-theme=dark] select:focus-visible,:root[data-theme=dark] textarea:focus-visible{box-shadow:0 0 0 1px #65e5ff33,0 0 12px #65e5ff20}
+}
