@@ -64,6 +64,7 @@ function App(){
  const par=(k,v)=>mudar(x=>{const a=x.parametros[x.ano];x.historico=[...(x.historico||[]),{quando:new Date().toISOString(),horizonte:x.ano,campo:k,anterior:a[k],novo:v,origem:'edição local'}].slice(-500);a[k]=v;a.alterado=true;a.atualizado=hoje();a.situacao='Alterado manualmente — requer validação';for(const q of x.produtos)q.validado=false});
  const calc=useMemo(()=>comercial?{valor:null,erro:null}:tentativa(()=>M.calcularProduto(p,s.regra,param)),[s,p]);const r=calc.valor;
  const pedido=useMemo(()=>tentativa(()=>comercial?M.calcularPedidoComercial(s.pedido,s.produtos,s.regra):M.calcularPedido(s.pedido,s.produtos,s.regra,s.parametros,s.ano)),[s]);const pr=pedido.valor;
+ const vendaCaixa=r?.projecaoReforma||r;
  const credito=(!comercial&&r)?tentativa(()=>M.calcularCaixa(r,p.creditos,p.caixa)):{valor:null,erro:null};
  useEffect(()=>{document.documentElement.dataset.theme=s.tema},[s.tema]);
  useEffect(()=>{if(!mudou)return;try{localStorage.setItem(CHAVE,JSON.stringify(estado))}catch(e){setMensagem('Não foi possível salvar neste navegador. Exporte um backup JSON para preservar os dados.')}},[estado,mudou]);
@@ -106,7 +107,7 @@ function App(){
  async function copiar(texto){try{await navigator.clipboard.writeText(texto);setMensagem('Copiado.')}catch(e){setMensagem('A cópia automática foi bloqueada. Selecione e copie o texto na caixa.')}}
  function lerCodigo(){try{let o=codigo.trim().startsWith('{')?JSON.parse(codigo):decodificar(codigo);if(o.v===2){const n=estadoInicial();n.produtos=o.i.map((x,i)=>({...clone(n.produtos[0]),id:'legado'+i,nome:x.n,unidade:x.u,cpv:x.c,frete:x.f,preco:x.t,faixas:x.q.map(([de,pct])=>({de,pct})),ncm:'',validado:false}));n.selecionado=n.produtos[0].id;n.regra.descMin=o.l?.[0]??0;n.regra.descMax=o.l?.[1]??10;const ano=n.ano;n.parametros={[ano]:{...n.parametros[ano],...o.r,modelo:'original',is:0,alterado:true,situacao:'Importado v2 — valores históricos, requer revisão'}};n.pedido={...n.pedido,itens:[]};o=n}validarCatalogosPacote(o);M.validarImportacao(o);if(o.tipo==='comercial')throw Error('Arquivo sem custos não reabre o estudo de gestão. Importe um backup interno.');setCandidato(o);setMensagem('Código validado. Confira o tipo e confirme a importação abaixo.')}catch(e){setCandidato(null);setMensagem('Não foi possível importar: '+e.message)}}
  function importar(){if(!candidato)return;const base=estadoInicial(),o=clone(candidato);mudar(x=>{Object.assign(x,base,o,{autoria:AUTORIA,selecionado:o.produtos[0].id,ano:o.parametros[o.ano]?o.ano:Object.keys(o.parametros)[0],modo:'gestor',aba:'pedido',pedido:o.tipo==='interno'&&o.pedido?o.pedido:{...base.pedido,data:hoje(),itens:[]}})});setCandidato(null);setCodigo('');setMensagem('Dados importados. Pacotes comerciais iniciam pedido vazio; backups internos preservam o pedido.');}
- const resumo=pr?['RESUMO COMERCIAL — SIMULAÇÃO B2B','Cliente: '+s.pedido.cliente,...pr.itens.map(x=>x.l.quantidade+' × '+x.p.nome+' ('+x.p.unidade+') — '+brl(x.praticado)+' / unidade; subtotal '+brl(x.subtotal)+(x.rateio?' − desconto rateado '+brl(x.rateio):'')),'Descontos totais: '+brl(pr.descontoTotal),'Outras despesas cobradas: '+brl(pr.outrasDespesas),'IPI informado: '+brl(pr.ipi),'ICMS-ST informado: '+brl(pr.icmsSt),'CBS: '+brl(pr.cbs)+'; IBS: '+brl(pr.ibs),'Total sem CBS e IBS: '+brl(pr.semReforma),'Total com frete CIF e tributos modelados: '+brl(pr.total),'Vencimento simulado: '+vencimento(s.pedido.data,s.pedido.prazo)+' ('+s.pedido.prazo+' dias)','Condição sujeita à aprovação comercial e validação fiscal. Não é documento fiscal nem boleto bancário.','',AUTORIA.credito].join('\n'):'';
+ const resumo=pr?['RESUMO COMERCIAL — SIMULAÇÃO B2B','Cliente: '+s.pedido.cliente,...pr.itens.map(x=>x.l.quantidade+' × '+x.p.nome+' ('+x.p.unidade+') — '+brl(x.praticado)+' / unidade; subtotal '+brl(x.subtotal)+(x.rateio?' − desconto rateado '+brl(x.rateio):'')+(x.rateioOutras?' + despesas rateadas '+brl(x.rateioOutras):'')+' = '+brl(x.final)),'Descontos totais: '+brl(pr.descontoTotal),'Outras despesas cobradas: '+brl(pr.outrasDespesas),'IPI informado: '+brl(pr.ipi),'ICMS-ST informado: '+brl(pr.icmsSt),'CBS: '+brl(pr.cbs)+'; IBS: '+brl(pr.ibs),...(s.regra.modoPrecificacao==='sem_cbs_ibs'?['Total comercial: '+brl(pr.total),'Acréscimo da projeção: '+brl(pr.acrescimoReforma),'Total projetado na Reforma: '+brl(pr.totalReforma)]:['Total sem CBS e IBS: '+brl(pr.semReforma),'Total com frete CIF e tributos modelados: '+brl(pr.total)]),'Vencimento simulado: '+vencimento(s.pedido.data,s.pedido.prazo)+' ('+s.pedido.prazo+' dias)','Condição sujeita à aprovação comercial e validação fiscal. Não é documento fiscal nem boleto bancário.','',AUTORIA.credito].join('\n'):'';
  const condicaoValida=Number.isInteger(s.pedido.prazo)&&s.pedido.prazo>=0&&s.pedido.prazo<=365&&/^\d{4}-\d{2}-\d{2}$/.test(s.pedido.data)&&s.pedido.cliente.trim().length>0;
  const exportavel=pr&&pr.itens.length&&pr.status==='seguro'&&condicaoValida;
  const avisoFiscal=html`<div class="notice warn">
@@ -297,20 +298,20 @@ ${p.tabelasPreco?.some(t=>M.fiscalTabela(p,t,param).alterado)&&html`<div class="
 <p class="muted">Mudanças não se tornam oficiais por serem salvas. Registre o ato aplicável e valide a operação. No modelo original, a opção de bases cruzadas não é aplicada.</p>
 </section>
 ${r&&html`<section class="panel">
-<h2>Do preço ao resultado</h2>
+<h2>Do preço ao resultado comercial</h2>
 <table>
-<tbody>${[['Preço final',r.preco],['(−) ICMS',-r.icms],['(−) CBS',-r.cbs],['(−) IBS',-r.ibs],['(−) IS',-r.is],['Receita sem tributos modelados',r.receita],['(−) CPV',-(r.cpv??p.cpv)],['(−) Frete',-(r.frete??p.frete)],...(r.tabelaId?[['(−) Operacional',-r.operacional],['(−) Comissão',-r.comissao],['(−) Simples',-r.simples]]:[]),['Resultado',r.lucro]].map(([n,v],i)=>html`<tr key=${n} class=${n==='Resultado'?'total':''}>
+<tbody>${[['Preço final',r.preco],['(−) ICMS',-r.icms],['(−) CBS',-r.cbs],['(−) IBS',-r.ibs],['(−) IS',-r.is],...(r.tabelaId?[['(−) Simples',-r.simples]]:[]),['Receita sem tributos modelados',r.receita],['(−) CPV',-(r.cpv??p.cpv)],['(−) Frete',-(r.frete??p.frete)],...(r.tabelaId?[['(−) Operacional',-r.operacional],['(−) Comissão',-r.comissao]]:[]),['Resultado',r.lucro]].map(([n,v],i)=>html`<tr key=${n} class=${n==='Resultado'?'total':''}>
 <td>${n}</td>
 <td class="num mono">${brl(v)}</td>
 </tr>`)}</tbody>
 </table>
-<details><summary>Ver bases de cálculo por imposto</summary><${BasesTributarias} resultado=${r} parametro=${param}/></details><${Detalhes} linhas=${linhasCalc}/>
+<details><summary>Ver bases de cálculo por imposto</summary>${r.projecaoReforma&&html`<div class="formula">${textoConciliacaoReforma(M.conciliarReforma(r,r.projecaoReforma))}</div>`}<${BasesTributarias} resultado=${r.projecaoReforma||r} parametro=${param}/></details><${Detalhes} linhas=${linhasCalc}/>
 </section>
 `}`;
  const caixaView=r?html`<section class="panel">
 <h2>Créditos das aquisições · por unidade vendida<${Ajuda} termo="credito"/>
 </h2>
-<p class="muted">Informe valores elegíveis e atribuídos à unidade de venda. Não existe crédito automático a partir da matéria-prima bruta. Créditos já descontados no CPV não são adicionados novamente ao resultado.</p>
+<p class="muted">${r.projecaoReforma?'Débitos e split usam o preço de faturamento projetado de '+brl(vendaCaixa.preco)+', com CBS/IBS. ':''}Informe valores elegíveis e atribuídos à unidade de venda. Não existe crédito automático a partir da matéria-prima bruta. Créditos já descontados no CPV não são adicionados novamente ao resultado.</p>
 <div class="grid three">${['icms','cbs','ibs'].map(k=>html`<${Campo} key=${k} titulo=${'Crédito '+k.toUpperCase()+' (R$)'} valor=${p.creditos[k]} alterar=${v=>up('creditos',{...p.creditos,[k]:v})}/>` )}</div>
 <div class="tablewrap">
 <table>
@@ -324,14 +325,14 @@ ${r&&html`<section class="panel">
 </thead>
 <tbody>${['icms','cbs','ibs'].map(k=>html`<tr key=${k}>
 <td>${k.toUpperCase()}</td>
-<td>${brl(r[k])}</td>
+<td>${brl(vendaCaixa[k])}</td>
 <td>${brl(p.creditos[k])}</td>
-<td>${brl(r[k]-p.creditos[k])}</td>
+<td>${brl(vendaCaixa[k]-p.creditos[k])}</td>
 </tr>`)}</tbody>
 </table>
 </div>
 <p class="muted">Saldo negativo é saldo credor comparativo; não representa pagamento imediato ao contribuinte. IBS e CBS são apurados separadamente.</p>
-<${Detalhes} linhas=${['Matéria-prima bruta de referência = '+brl(p.mpBruta)+'; sem inferência automática de crédito.',...['icms','cbs','ibs'].map(k=>k.toUpperCase()+': débito '+fmt(r[k])+' − crédito informado '+brl(p.creditos[k])+' = '+fmt(r[k]-p.creditos[k]))]}/>
+<${Detalhes} linhas=${['Matéria-prima bruta de referência = '+brl(p.mpBruta)+'; sem inferência automática de crédito.',...['icms','cbs','ibs'].map(k=>k.toUpperCase()+': débito '+fmt(vendaCaixa[k])+' − crédito informado '+brl(p.creditos[k])+' = '+fmt(vendaCaixa[k]-p.creditos[k]))]}/>
 </section>
 
 <section class="panel">
@@ -348,13 +349,13 @@ ${r&&html`<section class="panel">
 <${KPI} titulo="Depósito na indústria" valor=${brl(credito.valor.deposito)}/>
 <${KPI} titulo="Comparativo de caixa / mês" valor=${brl(credito.valor.gapMensal)} termo="gap"/>
 </div>
-<${Detalhes} linhas=${['Retenção padrão = max('+fmt(r.cbs)+' − '+brl(p.caixa.extintoCbs)+',0) + max('+fmt(r.ibs)+' − '+brl(p.caixa.extintoIbs)+',0).','Procedimento selecionado: '+p.caixa.modo+'; cobertura '+pc(p.caixa.cobertura)+'. Simplificado: preço '+brl(r.preco)+' × '+pc(p.caixa.percentualSimplificado)+'.','Retenção após cobertura e fechamento em centavos = '+brl(credito.valor.retido),'Depósito = '+brl(r.preco)+' − '+brl(credito.valor.retido)+' = '+brl(credito.valor.deposito),'Comparativo mensal = ('+brl(credito.valor.retido)+' − '+brl(p.creditos.cbs)+' − '+brl(p.creditos.ibs)+') × '+p.caixa.volume+' = '+brl(credito.valor.gapMensal),'O comparativo não automatiza compensação de créditos, não inclui IS na retenção e não modela datas de ressarcimento.']}/>`}</section>
+<${Detalhes} linhas=${['Retenção padrão = max('+fmt(vendaCaixa.cbs)+' − '+brl(p.caixa.extintoCbs)+',0) + max('+fmt(vendaCaixa.ibs)+' − '+brl(p.caixa.extintoIbs)+',0).','Procedimento selecionado: '+p.caixa.modo+'; cobertura '+pc(p.caixa.cobertura)+'. Simplificado: preço '+brl(vendaCaixa.preco)+' × '+pc(p.caixa.percentualSimplificado)+'.','Retenção após cobertura e fechamento em centavos = '+brl(credito.valor.retido),'Depósito = '+brl(vendaCaixa.preco)+' − '+brl(credito.valor.retido)+' = '+brl(credito.valor.deposito),'Comparativo mensal = ('+brl(credito.valor.retido)+' − '+brl(p.creditos.cbs)+' − '+brl(p.creditos.ibs)+') × '+p.caixa.volume+' = '+brl(credito.valor.gapMensal),'O comparativo não automatiza compensação de créditos, não inclui IS na retenção e não modela datas de ressarcimento.']}/>`}</section>
 
 <section class="panel">
 <h2>Crédito possível do cliente · hipótese</h2>
 <p class="muted">Informe valores por tributo somente após conferir regime e operação. O resumo comercial não promete crédito. Para saída zero, crédito ordinário da aquisição de CBS/IBS é zero, ressalvadas hipóteses legais específicas.</p>
 <div class="grid three">${['icms','cbs','ibs'].map(k=>html`<${Campo} key=${k} titulo=${'Crédito possível '+k.toUpperCase()+' (R$)'} valor=${p.clienteCredito[k]} alterar=${v=>up('clienteCredito',{...p.clienteCredito,[k]:v})}/>` )}</div>
-<${Campo} titulo="Markup de revenda do cliente (%)" valor=${p.clienteMarkup} alterar=${v=>up('clienteMarkup',v)}/>${(()=>{const cr=p.clienteCredito.icms+p.clienteCredito.cbs+p.clienteCredito.ibs,custo=r.preco-cr;return html`${(['icms','cbs','ibs'].some(k=>p.clienteCredito[k]>r[k]+.005))&&html`<div class="notice bad">Crédito informado supera o tributo calculado em pelo menos uma linha. Revise o enquadramento; não use como promessa comercial.</div>`}<div class="row between">
+<${Campo} titulo="Markup de revenda do cliente (%)" valor=${p.clienteMarkup} alterar=${v=>up('clienteMarkup',v)}/>${(()=>{const cr=p.clienteCredito.icms+p.clienteCredito.cbs+p.clienteCredito.ibs,custo=vendaCaixa.preco-cr;return html`${(['icms','cbs','ibs'].some(k=>p.clienteCredito[k]>vendaCaixa[k]+.005))&&html`<div class="notice bad">Crédito informado supera o tributo calculado em pelo menos uma linha. Revise o enquadramento; não use como promessa comercial.</div>`}<div class="row between">
 <span>Custo de aquisição após créditos hipotéticos</span>
 <strong class="mono">${brl(custo)}</strong>
 </div>
@@ -362,11 +363,11 @@ ${r&&html`<section class="panel">
 <span>Revenda gerencial, sem tributos de saída</span>
 <strong class="mono">${brl(custo*(1+p.clienteMarkup/100))}</strong>
 </div>
-<${Detalhes} linhas=${['Créditos hipotéticos = '+brl(p.clienteCredito.icms)+' + '+brl(p.clienteCredito.cbs)+' + '+brl(p.clienteCredito.ibs)+' = '+brl(cr),'Custo após créditos = '+brl(r.preco)+' − '+brl(cr)+' = '+brl(custo),'Revenda sem tributos de saída = '+brl(custo)+' × (1 + '+pc(p.clienteMarkup)+') = '+brl(custo*(1+p.clienteMarkup/100))]}/>`})()}</section>
+<${Detalhes} linhas=${['Créditos hipotéticos = '+brl(p.clienteCredito.icms)+' + '+brl(p.clienteCredito.cbs)+' + '+brl(p.clienteCredito.ibs)+' = '+brl(cr),'Custo após créditos = '+brl(vendaCaixa.preco)+' − '+brl(cr)+' = '+brl(custo),'Revenda sem tributos de saída = '+brl(custo)+' × (1 + '+pc(p.clienteMarkup)+') = '+brl(custo*(1+p.clienteMarkup/100))]}/>`})()}</section>
 `:html`<div class="notice bad">Corrija os dados de cálculo antes de simular créditos e caixa.</div>`;
  const sensView=html`<${TelaSensibilidade} key=${p.id+'-'+p.tabelaVendaId+'-'+s.ano} s=${s} mudar=${mudar} mensagem=${setMensagem}/>`;
  const pedidoView=html`<${TelaPedido} s=${s} mudar=${mudar} resultado=${pr} erro=${pedido.erro} mensagem=${setMensagem} resumo=${resumo} copiar=${copiar} exportavel=${exportavel}/>`;
- const dadosModelo={autoria:AUTORIA,versaoModelo:4,entrada:{produto:p,contexto:s.contexto,pedido:s.pedido},parametros:{horizonte:s.ano,fiscal:param,comercial:s.regra},resultado:{produto:r,basesTributarias:r?M.memoriaTributos(r,param):null,conciliacaoBase:r?M.conciliarPrecoBase(r):null,basesPorItem:pr?.itens.map(x=>({produtoId:x.p.id,quantidade:x.l.quantidade,bases:M.memoriaTributos(x.resultado,param,x.l.quantidade),conciliacaoBase:M.conciliarPrecoBase(x.resultado,x.l.quantidade)})),erro:calc.erro,pedido:pr,erroPedido:pedido.erro,caixa:credito.valor},politicas:{arredondamento:'Decimal 32 dígitos; half-up para valores comerciais; teto para sugerido/mínimo; piso para desconto seguro; rateio maiores restos',validacaoFiscal:'Responsável tributário deve validar fontes, enquadramento e regras aplicáveis.'}};
+ const dadosModelo={autoria:AUTORIA,versaoModelo:4,entrada:{produto:p,contexto:s.contexto,pedido:s.pedido},parametros:{horizonte:s.ano,fiscal:param,comercial:s.regra},resultado:{produto:r,basesTributarias:r?M.memoriaTributos(r,param):null,conciliacaoBase:r?M.conciliarPrecoBase(r):null,basesPorItem:pr?.itens.map(x=>({produtoId:x.p.id,quantidade:x.l.quantidade,bases:M.memoriaTributos(x.resultado.projecaoReforma||x.resultado,param,x.l.quantidade),conciliacaoBase:M.conciliarPrecoBase(x.resultado.projecaoReforma||x.resultado,x.l.quantidade),conciliacaoReforma:x.conciliacaoReforma})),erro:calc.erro,pedido:pr,erroPedido:pedido.erro,caixa:credito.valor},politicas:{arredondamento:'Decimal 32 dígitos; half-up para valores comerciais; teto para sugerido/mínimo; piso para desconto seguro; rateio maiores restos',validacaoFiscal:'Responsável tributário deve validar fontes, enquadramento e regras aplicáveis.'}};
  const estudoView=html`<section class="panel">
 <h2>Transferir tabela ou guardar backup</h2>
 <div class="notice">Pacote comercial exclui custos e margens. Pacote interno contém dados de gestão. Base64 é codificação, sem proteção por senha.</div>

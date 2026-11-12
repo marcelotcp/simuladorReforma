@@ -73,5 +73,19 @@ t('UI24: E se separa preço comercial da projeção e aplica somente o comercial
  assert.equal(tela.root.findAllByType(vm.runInContext('BasesTributarias',c)).length,2);
  botao('Aplicar cenário Preço atual').props.onClick();assert.equal(p.tabelasPreco.find(t=>t.id===p.tabelaVendaId).precoConsumidor,r.preco);assert.notEqual(r.preco,r.precoReforma);tela.unmount();
 });
+t('UI25: cartões e detalhes explicam os mesmos 822,84 do pedido projetado',()=>{
+ const s=vm.runInContext('M.prepararCenario(migrarGrade(estadoInicial()))',c),motor=vm.runInContext('M',c);s.regra.modoPrecificacao='sem_cbs_ibs';s.pedido.itens=[{produtoId:'p1',tabelaId:'padrao',quantidade:10,preco:76.22,descontoPct:0}];s.pedido.desconto=0;
+ const r=motor.calcularPedido(s.pedido,s.produtos,s.regra,s.parametros,s.ano),Tela=vm.runInContext('TelaPedido',c),Cartao=vm.runInContext('CartaoTotal',c);
+ const tela=c.ReactTestRenderer.create(c.React.createElement(Tela,{s,resultado:r,mudar:fn=>fn(s),mensagem(){},resumo:'',copiar(){},exportavel:true}));
+ const cards=tela.root.findAllByType(Cartao),card=cards.find(x=>x.props.titulo==='Total projetado na Reforma');assert.equal(card.props.valor,822.84);assert.match(card.props.formula,/739,30/);assert.match(card.props.formula,/822,84/);assert.match(card.props.formula,/Recomposição do ICMS/);assert.match(card.props.formula,/Ajuste da soma exibida/);
+ const cbs=cards.find(x=>x.props.titulo==='CBS + IBS');assert.equal(cbs.props.valor,68.50);assert.match(cbs.props.formula,/67,90/);assert.match(cbs.props.formula,/0,61/);
+ tela.root.findAllByType('button').find(x=>x.props['aria-label']==='Detalhar Pão Francês Congelado').props.onClick();const B=vm.runInContext('BasesTributarias',c),b=tela.root.findByType(B);assert.ok(Math.abs(b.props.resultado.preco*b.props.quantidade-822.84)<1e-8);assert.match(JSON.stringify(tela.toJSON()),/Valor projetado do item usado na decomposição/);tela.unmount();
+});
+t('UI26: resumo e caixa distinguem comercial e faturamento na modalidade sem CBS/IBS',()=>{
+ const s=vm.runInContext('migrarGrade(estadoInicial())',c);s.regra.modoPrecificacao='sem_cbs_ibs';s.aba='pedido';s.pedido.itens=[{produtoId:'p1',tabelaId:'padrao',quantidade:10,preco:76.22,descontoPct:0}];s.pedido.desconto=0;
+ armazenamento.set('mc-sn-reforma-b2b-v4',JSON.stringify(s));const tela=c.ReactTestRenderer.create(c.React.createElement(vm.runInContext('App',c))),botao=n=>tela.root.findAllByType('button').find(x=>x.props['aria-label']===n);
+ botao('Mostrar resumo do pedido').props.onClick();const resumo=tela.root.findAllByType('textarea').find(x=>x.props.id==='resumo').props.value;assert.match(resumo,/Total comercial:.*739,30/);assert.match(resumo,/Total projetado na Reforma:.*822,84/);assert.doesNotMatch(resumo,/Total sem CBS e IBS:/);
+ botao('Créditos e caixa').props.onClick();assert.match(JSON.stringify(tela.toJSON()),/faturamento projetado/);tela.unmount();
+});
 fs.writeFileSync(path.join(__dirname,'resultados-interface.json'),JSON.stringify({autoria:'MARCELO CLEITON',tipo:'Renderização React sem navegador; sem certificação visual ou WCAG',resultados},null,2));
 console.log(resultados.length+' verificações de interface aprovadas.');

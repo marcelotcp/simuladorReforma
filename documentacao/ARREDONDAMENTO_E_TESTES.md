@@ -48,3 +48,7 @@ As verificações UI01–UI12 usam React Test Renderer: renderização, navegaç
 MARCELO CLEITON, criador do projeto. Análise do impacto da Reforma Tributária nas aplicações da SN SISTEMA. © 2026 Marcelo Cleiton
 
 Versão 4.1: G01–G12 cobrem a entrada e a grade. As decisões comerciais completas estão em ALTERACOES_V4_1.md.
+
+## Revisão de 12/11/2026
+
+No pedido, o total projetado é fechado por item antes da decomposição dos tributos. O teto unitário da grade é uma referência de precificação, não uma base a multiplicar para fechar os tributos do pedido. O sugerido passa a usar `teto(teto(alvo praticado) ÷ (1 − desconto))`, preservando a meta após o arredondamento unitário. Entradas monetárias do pedido são normalizadas em centavos antes dos rateios. Os resíduos da soma apresentada continuam explícitos. Ver `AUDITORIA_CALCULOS.md` e `testes/auditoria-calculos.test.cjs`.

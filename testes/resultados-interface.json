@@ -97,6 +97,14 @@
     {
       "id": "UI24: E se separa preço comercial da projeção e aplica somente o comercial",
       "situacao": "OK"
+    },
+    {
+      "id": "UI25: cartões e detalhes explicam os mesmos 822,84 do pedido projetado",
+      "situacao": "OK"
+    },
+    {
+      "id": "UI26: resumo e caixa distinguem comercial e faturamento na modalidade sem CBS/IBS",
+      "situacao": "OK"
     }
   ]
 }

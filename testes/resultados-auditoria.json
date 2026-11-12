@@ -1,0 +1,49 @@
+{
+  "autoria": "MARCELO CLEITON",
+  "escopo": "Conferência matemática do modelo configurado; não certifica legislação ou emissão fiscal.",
+  "cenarios": 384,
+  "rateiosConferidos": 1000,
+  "formacoesConferidas": 240,
+  "resultados": [
+    {
+      "id": "A01: caso da captura fecha 739,30 → 822,84, com tributos da mesma origem",
+      "situacao": "OK"
+    },
+    {
+      "id": "A02: bases, tributos e conciliação do item usam o total projetado fechado",
+      "situacao": "OK"
+    },
+    {
+      "id": "A03: matriz de 384 cenários confere fatores, preços, despesas e margens por equações independentes",
+      "situacao": "OK"
+    },
+    {
+      "id": "A04: rateios de desconto e despesas coincidem com oráculo inteiro em 500 casos",
+      "situacao": "OK"
+    },
+    {
+      "id": "A05: dinheiro informado com mais casas fecha uma única vez e não gera desconto negativo",
+      "situacao": "OK"
+    },
+    {
+      "id": "A06: pedidos mistos conciliam parcelas e não projetam IPI/ST duas vezes",
+      "situacao": "OK"
+    },
+    {
+      "id": "A07: caixa e split usam faturamento projetado e não CBS/IBS comerciais zerados",
+      "situacao": "OK"
+    },
+    {
+      "id": "A08: sugerido e piso protegem metas com frete, créditos e despesas nos dois modos",
+      "situacao": "OK"
+    },
+    {
+      "id": "A09: modelo e modalidade desconhecidos não geram cálculo silencioso",
+      "situacao": "OK"
+    },
+    {
+      "id": "A10: limites de meio centavo usam multiplicador decimal sem fatores serializados",
+      "situacao": "OK"
+    }
+  ]
+}
